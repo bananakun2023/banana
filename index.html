@@ -3,15 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シンプルなウェブサイト</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>シンプルスロットマシン</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+        #slot {
+            display: flex;
+            justify-content: center;
+            margin: 20px;
+        }
+        .slot {
+            font-size: 3rem;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffcc00;
+            border: 2px solid #333;
+            margin: 0 10px;
+            border-radius: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #result {
+            font-size: 1.5rem;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>バナナ</h1>
-    </header>
-    <main>
-        <p>バナナくん</p>
-    </main>
+    <h1>シンプルスロットマシン</h1>
+    <div id="slot">
+        <div class="slot" id="slot1">🍒</div>
+        <div class="slot" id="slot2">🍒</div>
+        <div class="slot" id="slot3">🍒</div>
+    </div>
+    <button onclick="spin()">回す</button>
+    <div id="result"></div>
+
+    <script>
+        const symbols = ['🍒', '🍋', '🍊', '🍉', '🍓', '🍇'];
+        
+        function spin() {
+            const slot1 = document.getElementById('slot1');
+            const slot2 = document.getElementById('slot2');
+            const slot3 = document.getElementById('slot3');
+            
+            // ランダムにスロットを更新
+            slot1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            slot2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            slot3.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            
+            // 結果を表示
+            checkResult(slot1.textContent, slot2.textContent, slot3.textContent);
+        }
+
+        function checkResult(symbol1, symbol2, symbol3) {
+            const result = document.getElementById('result');
+            if (symbol1 === symbol2 && symbol2 === symbol3) {
+                result.textContent = 'おめでとう！ジャックポット！';
+            } else {
+                result.textContent = '残念！もう一度挑戦！';
+            }
+        }
+    </script>
 </body>
 </html>
