@@ -1,86 +1,86 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シンプルスロットマシン</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            text-align: center;
-        }
-        #slot {
-            display: flex;
-            justify-content: center;
-            margin: 20px;
-        }
-        .slot {
-            font-size: 3rem;
-            width: 80px;
-            height: 80px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #ffcc00;
-            border: 2px solid #333;
-            margin: 0 10px;
-            border-radius: 10px;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 1.2rem;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        #result {
-            font-size: 1.5rem;
-            margin-top: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>ミニゲーム集</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; }
+    h1 { color: #4CAF50; }
+    .game { border: 1px solid #ddd; padding: 20px; margin: 20px; }
+    button { padding: 10px 20px; margin-top: 10px; }
+  </style>
 </head>
 <body>
-    <h1>シンプルスロットマシン</h1>
-    <div id="slot">
-        <div class="slot" id="slot1">🍒</div>
-        <div class="slot" id="slot2">🍒</div>
-        <div class="slot" id="slot3">🍒</div>
-    </div>
-    <button onclick="spin()">回す</button>
-    <div id="result"></div>
 
-    <script>
-        const symbols = ['🍒', '🍋', '🍊', '🍉', '🍓', '🍇'];
-        
-        function spin() {
-            const slot1 = document.getElementById('slot1');
-            const slot2 = document.getElementById('slot2');
-            const slot3 = document.getElementById('slot3');
-            
-            // ランダムにスロットを更新
-            slot1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-            slot2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-            slot3.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-            
-            // 結果を表示
-            checkResult(slot1.textContent, slot2.textContent, slot3.textContent);
-        }
+  <h1>ミニゲーム集</h1>
 
-        function checkResult(symbol1, symbol2, symbol3) {
-            const result = document.getElementById('result');
-            if (symbol1 === symbol2 && symbol2 === symbol3) {
-                result.textContent = 'おめでとう！ジャックポット！';
-            } else {
-                result.textContent = '残念！もう一度挑戦！';
-            }
-        }
-    </script>
+  <!-- 数当てゲーム -->
+  <div class="game">
+    <h2>数当てゲーム</h2>
+    <p id="guess-game-message">1から10の間で数字を当ててください！</p>
+    <input type="number" id="guess-input" min="1" max="10" />
+    <button onclick="guessNumber()">当てる</button>
+  </div>
+
+  <!-- じゃんけんゲーム -->
+  <div class="game">
+    <h2>じゃんけんゲーム</h2>
+    <p id="rps-message">じゃんけんの手を選んでください！</p>
+    <button onclick="playRPS('グー')">グー</button>
+    <button onclick="playRPS('チョキ')">チョキ</button>
+    <button onclick="playRPS('パー')">パー</button>
+    <p id="rps-result"></p>
+  </div>
+
+  <!-- クリックで得点 -->
+  <div class="game">
+    <h2>クリックで得点</h2>
+    <p id="click-score">得点: 0</p>
+    <button onclick="increaseScore()">クリックで得点を増やす</button>
+  </div>
+
+  <script>
+    // 数当てゲーム
+    const randomNumber = Math.floor(Math.random() * 10) + 1;
+    function guessNumber() {
+      const guess = parseInt(document.getElementById('guess-input').value);
+      const message = document.getElementById('guess-game-message');
+      if (guess === randomNumber) {
+        message.textContent = "正解！おめでとう！";
+      } else if (guess < randomNumber) {
+        message.textContent = "もう少し大きな数です！";
+      } else {
+        message.textContent = "もう少し小さな数です！";
+      }
+    }
+
+    // じゃんけんゲーム
+    function playRPS(playerChoice) {
+      const choices = ["グー", "チョキ", "パー"];
+      const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+      let result;
+      if (playerChoice === computerChoice) {
+        result = "引き分けです！";
+      } else if (
+        (playerChoice === "グー" && computerChoice === "チョキ") ||
+        (playerChoice === "チョキ" && computerChoice === "パー") ||
+        (playerChoice === "パー" && computerChoice === "グー")
+      ) {
+        result = "あなたの勝ち！";
+      } else {
+        result = "コンピューターの勝ち！";
+      }
+      document.getElementById('rps-result').textContent =
+        `あなた: ${playerChoice} | コンピューター: ${computerChoice} - ${result}`;
+    }
+
+    // クリックで得点
+    let score = 0;
+    function increaseScore() {
+      score++;
+      document.getElementById('click-score').textContent = `得点: ${score}`;
+    }
+  </script>
+
 </body>
 </html>
