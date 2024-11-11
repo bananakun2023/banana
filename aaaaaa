@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URLリダイレクトサイト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>ブロック回避サイト</h1>
+    <p>以下のURLを入力して、リダイレクトします：</p>
+    <input type="text" id="urlInput" placeholder="例: https://example.com">
+    <br>
+    <button onclick="redirectToURL()">アクセス</button>
+
+    <script>
+        function redirectToURL() {
+            const url = document.getElementById('urlInput').value;
+            if (url) {
+                // 入力されたURLにリダイレクト
+                window.location.href = url;
+            } else {
+                alert('URLを入力してください。');
+            }
+        }
+    </script>
+</body>
+</html>
