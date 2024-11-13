@@ -1,86 +1,20 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>ミニゲーム集</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; }
-    h1 { color: #4CAF50; }
-    .game { border: 1px solid #ddd; padding: 20px; margin: 20px; }
-    button { padding: 10px 20px; margin-top: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リンクページ</title>
 </head>
 <body>
 
-  <h1>ミニゲーム集</h1>
+<h1>リンク集</h1>
+<p>以下のリンクをクリックすると、各サイトに移動します。</p>
 
-  <!-- 数当てゲーム -->
-  <div class="game">
-    <h2>数当てゲーム</h2>
-    <p id="guess-game-message">1から10の間で数字を当ててください！</p>
-    <input type="number" id="guess-input" min="1" max="10" />
-    <button onclick="guessNumber()">当てる</button>
-  </div>
-
-  <!-- じゃんけんゲーム -->
-  <div class="game">
-    <h2>じゃんけんゲーム</h2>
-    <p id="rps-message">じゃんけんの手を選んでください！</p>
-    <button onclick="playRPS('グー')">グー</button>
-    <button onclick="playRPS('チョキ')">チョキ</button>
-    <button onclick="playRPS('パー')">パー</button>
-    <p id="rps-result"></p>
-  </div>
-
-  <!-- クリックで得点 -->
-  <div class="game">
-    <h2>クリックで得点</h2>
-    <p id="click-score">得点: 0</p>
-    <button onclick="increaseScore()">クリックで得点を増やす</button>
-  </div>
-
-  <script>
-    // 数当てゲーム
-    const randomNumber = Math.floor(Math.random() * 10) + 1;
-    function guessNumber() {
-      const guess = parseInt(document.getElementById('guess-input').value);
-      const message = document.getElementById('guess-game-message');
-      if (guess === randomNumber) {
-        message.textContent = "正解！おめでとう！";
-      } else if (guess < randomNumber) {
-        message.textContent = "もう少し大きな数です！";
-      } else {
-        message.textContent = "もう少し小さな数です！";
-      }
-    }
-
-    // じゃんけんゲーム
-    function playRPS(playerChoice) {
-      const choices = ["グー", "チョキ", "パー"];
-      const computerChoice = choices[Math.floor(Math.random() * choices.length)];
-      let result;
-      if (playerChoice === computerChoice) {
-        result = "引き分けです！";
-      } else if (
-        (playerChoice === "グー" && computerChoice === "チョキ") ||
-        (playerChoice === "チョキ" && computerChoice === "パー") ||
-        (playerChoice === "パー" && computerChoice === "グー")
-      ) {
-        result = "あなたの勝ち！";
-      } else {
-        result = "コンピューターの勝ち！";
-      }
-      document.getElementById('rps-result').textContent =
-        `あなた: ${playerChoice} | コンピューター: ${computerChoice} - ${result}`;
-    }
-
-    // クリックで得点
-    let score = 0;
-    function increaseScore() {
-      score++;
-      document.getElementById('click-score').textContent = `得点: ${score}`;
-    }
-  </script>
+<ul>
+    <li><a href="https://www.example.com" target="_blank">Example サイト</a></li>
+    <li><a href="https://www.google.com" target="_blank">Google</a></li>
+    <li><a href="https://www.wikipedia.org" target="_blank">Wikipedia</a></li>
+</ul>
 
 </body>
 </html>
