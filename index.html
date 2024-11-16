@@ -3,19 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ゲームリンクページ</title>
+    <title>ダジャレ生成サイト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #pun-container {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #34495e;
+        }
+    </style>
 </head>
 <body>
 
-<h1>ゲームリンク集</h1>
-<p>以下のリンクをクリックすると、各ゲームがプレイできるサイトに移動します。</p>
+<h1>ダジャレ生成サイト</h1>
+<p>ボタンをクリックしてランダムなダジャレを表示します。</p>
+<button onclick="generatePun()">ダジャレを作る！</button>
 
-<ul>
-    <li><a href="https://nowaybro.port0.org/" target="_blank">ブロック回避サイト１</a></li>
-    <li><a href="https://ixlschoology2828.lovethosetrains.com/" target="_blank">ブロック回避サイト２</a></li>
-    <li><a href="https://pen-ozi.github.io/" target="_blank">神</a></li>
-    <li><a href="https://sushida.net/" target="_blank">寿司打</a></li>
-</ul>
+<div id="pun-container"></div>
+
+<script>
+    const puns = [
+        "布団がふっとんだ！",
+        "カレーが辛ぇ～。",
+        "犬が吠えると、いぬー！",
+        "パンを踏んだら、フランスパン！",
+        "トイレに行っといれ。",
+        "サバをさばく。",
+        "タコがタコんだ！",
+        "コーヒーを飲むと幸せがこーひー！",
+        "梅干しを食べてうめー！",
+        "アルパカに会うと、あるパカ？"
+    ];
+
+    function generatePun() {
+        const randomIndex = Math.floor(Math.random() * puns.length);
+        const pun = puns[randomIndex];
+        document.getElementById('pun-container').textContent = pun;
+    }
+</script>
 
 </body>
 </html>
