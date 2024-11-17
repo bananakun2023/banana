@@ -3,63 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>早口言葉</title>
+    <title>シンプルチャットアプリ</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
         }
-        h1 {
-            color: #2c3e50;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        #pun-container {
+        #chat-container {
+            width: 90%;
+            max-width: 600px;
             margin-top: 20px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #34495e;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #messages {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #fafafa;
+        }
+        #messages p {
+            margin: 5px 0;
+        }
+        .user-message {
+            text-align: right;
+            color: #007bff;
+        }
+        .bot-message {
+            text-align: left;
+            color: #333;
+        }
+        #input-container {
+            display: flex;
+        }
+        #message-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        #send-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        #send-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
 
-<h1>早口言葉生成サイト</h1>
-<p>ボタンをクリックしてランダムな早口言葉を表示します。</p>
-<button onclick="generatePun()">ダジャレを作る！</button>
-
-<div id="pun-container"></div>
+<div id="chat-container">
+    <h2>チャットアプリ</h2>
+    <div id="messages"></div>
+    <div id="input-container">
+        <input type="text" id="message-input" placeholder="メッセージを入力">
+        <button id="send-button">送信</button>
+    </div>
+</div>
 
 <script>
-    const puns = [
-        "生麦生米生卵",
-        "隣の客はよく柿食う客だ",
-        "赤パジャマ青パジャマ黄パジャマ",
-        "スモモもモモもモモのうち モモもスモモもモモのうち",
-        "豚が豚をぶったらぶたれた豚がぶった豚をぶったので、ぶった豚とぶたれた豚がぶっ倒れた",
-        "東京特許許可局",
-        "隣の客はよく柿食う客だ",
-        "坊主が上手にびょうぶに坊主の絵をかいた",
-        "除雪車除雪作業中",
-        "あきらめたらそこで試合終了だよ"
+    const messagesContainer = document.getElementById("messages");
+    const messageInput = document.getElementById("message-input");
+    const sendButton = document.getElementById("send-button");
+
+    // サンプル応答リスト（疑似ボット機能）
+    const botResponses = [
+        "こんにちは！",
+        "それは面白いですね！",
+        "なるほど、他には？",
+        "すごいですね！",
+        "ありがとう！",
     ];
 
-    function generatePun() {
-        const randomIndex = Math.floor(Math.random() * puns.length);
-        const pun = puns[randomIndex];
-        document.getElementById('pun-container').textContent = pun;
+    // メッセージを追加する関数
+    function addMessage(message, sender) {
+        const messageElement = document.createElement("p");
+        messageElement.textContent = message;
+        messageElement.className = sender === "user" ? "user-message" : "bot-message";
+        messagesContainer.appendChild(messageElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight; // スクロールを一番下に移動
     }
+
+    // ボタンのクリックイベント
+    sendButton.addEventListener("click", () => {
+        const userMessage = messageInput.value.trim();
+        if (userMessage) {
+            addMessage(userMessage, "user");
+            messageInput.value = ""; // 入力フィールドをクリア
+            setTimeout(() => {
+                const botMessage = botResponses[Math.floor(Math.random() * botResponses.length)];
+                addMessage(botMessage, "bot");
+            }, 500); // ボット応答の遅延
+        }
+    });
+
+    // Enterキーで送信
+    messageInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            sendButton.click();
+        }
+    });
 </script>
 
 </body>
