@@ -3,123 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シンプルチャットアプリ</title>
+    <title>演出付きガチャ</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #222;
+            color: white;
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f4f4f4;
         }
-        #chat-container {
-            width: 90%;
-            max-width: 600px;
+        h1 {
             margin-top: 20px;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        #messages {
-            height: 300px;
-            overflow-y: scroll;
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            background-color: #fafafa;
-        }
-        #messages p {
-            margin: 5px 0;
-        }
-        .user-message {
-            text-align: right;
-            color: #007bff;
-        }
-        .bot-message {
-            text-align: left;
-            color: #333;
-        }
-        #input-container {
-            display: flex;
-        }
-        #message-input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-right: 10px;
-        }
-        #send-button {
-            background-color: #007bff;
-            color: #fff;
+        button {
+            background-color: #3498db;
+            color: white;
             border: none;
-            border-radius: 5px;
-            padding: 10px 15px;
+            padding: 15px 30px;
+            font-size: 18px;
             cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
         }
-        #send-button:hover {
-            background-color: #0056b3;
+        button:hover {
+            background-color: #2980b9;
+        }
+        .gacha-box {
+            margin: 50px auto;
+            width: 300px;
+            height: 300px;
+            background-color: #444;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .sparkles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 50%);
+            animation: sparkle-animation 1.5s infinite;
+            opacity: 0;
+        }
+        @keyframes sparkle-animation {
+            0%, 100% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+        .result {
+            font-size: 30px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
-<div id="chat-container">
-    <h2>チャットアプリ</h2>
-    <div id="messages"></div>
-    <div id="input-container">
-        <input type="text" id="message-input" placeholder="メッセージを入力">
-        <button id="send-button">送信</button>
-    </div>
+<h1>ガチャシミュレーター</h1>
+<div class="gacha-box">
+    <div id="gacha-result">?</div>
+    <div class="sparkles" id="sparkles"></div>
 </div>
+<button onclick="startGacha()">ガチャを引く！</button>
+<div class="result" id="final-result"></div>
 
 <script>
-    const messagesContainer = document.getElementById("messages");
-    const messageInput = document.getElementById("message-input");
-    const sendButton = document.getElementById("send-button");
-
-    // サンプル応答リスト（疑似ボット機能）
-    const botResponses = [
-        "こんにちは！",
-        "それは面白いですね！",
-        "なるほど、他には？",
-        "すごいですね！",
-        "ありがとう！",
+    // ガチャの結果リスト
+    const prizes = [
+        { name: "SSR キャラクターA", rarity: "SSR", color: "gold" },
+        { name: "SR キャラクターB", rarity: "SR", color: "purple" },
+        { name: "R キャラクターC", rarity: "R", color: "blue" },
+        { name: "N キャラクターD", rarity: "N", color: "gray" }
     ];
 
-    // メッセージを追加する関数
-    function addMessage(message, sender) {
-        const messageElement = document.createElement("p");
-        messageElement.textContent = message;
-        messageElement.className = sender === "user" ? "user-message" : "bot-message";
-        messagesContainer.appendChild(messageElement);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight; // スクロールを一番下に移動
+    // ガチャロジック
+    function startGacha() {
+        // ガチャボックスの初期化
+        const resultBox = document.getElementById("gacha-result");
+        const sparkles = document.getElementById("sparkles");
+        const finalResult = document.getElementById("final-result");
+
+        resultBox.textContent = "抽選中...";
+        resultBox.style.color = "white";
+        finalResult.textContent = "";
+
+        // スパークル演出の開始
+        sparkles.style.opacity = "1";
+        sparkles.style.animationPlayState = "running";
+
+        // ガチャ結果をランダムに決定
+        setTimeout(() => {
+            const prize = getRandomPrize();
+            resultBox.textContent = prize.name;
+            resultBox.style.color = prize.color;
+
+            // 結果を表示
+            finalResult.textContent = `${prize.rarity} を引きました！`;
+            sparkles.style.opacity = "0";
+        }, 2000); // 2秒後に結果表示
     }
 
-    // ボタンのクリックイベント
-    sendButton.addEventListener("click", () => {
-        const userMessage = messageInput.value.trim();
-        if (userMessage) {
-            addMessage(userMessage, "user");
-            messageInput.value = ""; // 入力フィールドをクリア
-            setTimeout(() => {
-                const botMessage = botResponses[Math.floor(Math.random() * botResponses.length)];
-                addMessage(botMessage, "bot");
-            }, 500); // ボット応答の遅延
-        }
-    });
-
-    // Enterキーで送信
-    messageInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-            sendButton.click();
-        }
-    });
+    // ランダムな賞品を取得する関数
+    function getRandomPrize() {
+        const randomIndex = Math.floor(Math.random() * prizes.length);
+        return prizes[randomIndex];
+    }
 </script>
 
 </body>
