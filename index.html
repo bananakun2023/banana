@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大富豪 - CPU対戦付き</title>
+    <title>大富豪</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,7 +26,6 @@
             display: flex;
             margin: 20px;
             flex-wrap: wrap;
-            justify-content: center;
         }
         .card {
             width: 80px;
@@ -43,11 +42,11 @@
             align-items: center;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s, opacity 0.5s;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .card.animate {
-            transform: scale(1.5);
-            opacity: 0;
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
         }
         .disabled {
             background-color: gray;
@@ -78,7 +77,7 @@
 </head>
 <body>
 
-<h1>大富豪 - CPU対戦付き</h1>
+<h1>大富豪 - 特殊ルール付き</h1>
 <div class="game-container">
     <div id="table" class="table">
         <p>場にカードはありません</p>
@@ -91,32 +90,30 @@
 </div>
 
 <script>
+    // カード生成
     const suits = ["♥", "♦", "♠", "♣"];
     const ranks = ["3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A", "2"];
     let deck = [];
+    for (const suit of suits) {
+        for (const rank of ranks) {
+            deck.push({ suit, rank, value: ranks.indexOf(rank) + 1 });
+        }
+    }
+
+    // 手札とテーブルカード
     let playerHand = [];
-    let cpuHand = [];
     let tableCard = null;
 
+    // ゲーム初期化
     function resetGame() {
-        deck = shuffle(generateDeck());
-        playerHand = deck.slice(0, 8);
-        cpuHand = deck.slice(8, 16);
+        deck = shuffle(deck);
+        playerHand = deck.slice(0, 8); // プレイヤーの手札
         tableCard = null;
         document.getElementById("result").textContent = "";
         updateUI();
     }
 
-    function generateDeck() {
-        const deck = [];
-        for (const suit of suits) {
-            for (const rank of ranks) {
-                deck.push({ suit, rank, value: ranks.indexOf(rank) + 1 });
-            }
-        }
-        return deck;
-    }
-
+    // デッキシャッフル
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -125,16 +122,17 @@
         return array;
     }
 
+    // UI更新
     function updateUI() {
         const handDiv = document.getElementById("hand");
         const tableDiv = document.getElementById("table");
 
         // テーブルカード
         tableDiv.innerHTML = tableCard
-            ? `<div class="card">${tableCard.suit}${tableCard.rank}</div>`
+            ? `<div class="card ${tableCard.rank === "8" ? "special" : ""}">${tableCard.suit}${tableCard.rank}</div>`
             : "<p>場にカードはありません</p>";
 
-        // プレイヤーの手札
+        // 手札
         handDiv.innerHTML = "";
         playerHand.forEach((card, index) => {
             const cardDiv = document.createElement("div");
@@ -145,55 +143,33 @@
         });
     }
 
+    // 特殊ルールの判定
     function isCardPlayable(card) {
-        if (!tableCard) return true;
-        if (card.rank === "8") return true;
-        return card.value > tableCard.value;
+        if (!tableCard) return true; // テーブルが空なら出せる
+        if (card.rank === "8") return true; // 8切り
+        if (tableCard.rank === "3" && tableCard.suit === "♠") return false; // スペード3が最強
+        return card.value > tableCard.value; // 高いカードのみ出せる
     }
 
+    // カードを出す
     function playCard(index) {
         const card = playerHand[index];
-        if (!isCardPlayable(card)) return;
-        animateCard(document.getElementsByClassName("card")[index], () => {
-            if (card.rank === "8") {
-                alert("8切り！場をリセットします！");
-                tableCard = null;
-            } else {
-                tableCard = card;
-            }
-            playerHand.splice(index, 1);
-            if (playerHand.length === 0) {
-                document.getElementById("result").textContent = "おめでとうございます！あなたの勝ちです！";
-                return;
-            }
-            updateUI();
-            setTimeout(cpuTurn, 1000); // CPUのターン
-        });
-    }
-
-    function cpuTurn() {
-        const playableCards = cpuHand.filter(card => isCardPlayable(card));
-        if (playableCards.length === 0) {
-            alert("CPUはパスしました！");
+        if (!isCardPlayable(card)) return; // 出せないカード
+        if (card.rank === "8") {
+            alert("8切り！場がリセットされます！");
+            tableCard = null; // 場をリセット
+        } else {
+            tableCard = card; // カードを場に置く
+        }
+        playerHand.splice(index, 1); // 手札から削除
+        if (playerHand.length === 0) {
+            document.getElementById("result").textContent = "おめでとうございます！あなたの勝ちです！";
             return;
         }
-        const card = playableCards[0];
-        cpuHand = cpuHand.filter(c => c !== card);
-        tableCard = card;
         updateUI();
-        if (cpuHand.length === 0) {
-            document.getElementById("result").textContent = "CPUの勝ちです。";
-        }
     }
 
-    function animateCard(cardElement, callback) {
-        cardElement.classList.add("animate");
-        setTimeout(() => {
-            cardElement.remove();
-            callback();
-        }, 500); // アニメーション時間
-    }
-
+    // ゲーム開始
     resetGame();
 </script>
 
