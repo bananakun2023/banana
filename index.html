@@ -3,99 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>検索サイト</title>
+    <title>音楽サイト</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
-            color: #333;
+            background-color: #1e1e1e;
+            color: white;
             margin: 0;
             padding: 0;
         }
         h1 {
             margin: 20px;
-            color: #444;
+            color: #ffcc00;
         }
-        .search-container {
+        .player-container {
             margin: 40px auto;
-            max-width: 500px;
+            max-width: 600px;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            font-size: 18px;
-            border: 2px solid #ccc;
-            border-radius: 5px;
+        .playlist {
+            margin: 20px 0;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 18px;
+        .playlist button {
+            background-color: #444;
             color: white;
-            background-color: #007bff;
             border: none;
+            padding: 10px 20px;
+            margin: 5px;
             border-radius: 5px;
             cursor: pointer;
-            margin-left: 5px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .search-engines {
-            margin: 20px auto;
-        }
-        .search-engines label {
-            margin-right: 10px;
             font-size: 16px;
         }
-        .search-engines input {
-            margin-right: 5px;
+        .playlist button:hover {
+            background-color: #555;
+        }
+        audio {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .controls button {
+            background-color: #ffcc00;
+            color: #1e1e1e;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .controls button:hover {
+            background-color: #ffaa00;
+        }
+        .volume-control {
+            margin-top: 20px;
+        }
+        .volume-control input[type="range"] {
+            width: 80%;
+        }
+        .visualizer {
+            margin-top: 20px;
+            width: 100%;
+            height: 100px;
+            background: black;
+            border-radius: 5px;
+        }
+        @media (max-width: 768px) {
+            .player-container {
+                width: 90%;
+            }
         }
     </style>
 </head>
 <body>
 
-<h1>検索サイト</h1>
+<h1>音楽サイト</h1>
 
-<div class="search-container">
-    <input type="text" id="searchQuery" placeholder="検索キーワードを入力してください">
-    <button onclick="performSearch()">検索</button>
-</div>
-
-<div class="search-engines">
-    <label><input type="radio" name="engine" value="google" checked> Google</label>
-    <label><input type="radio" name="engine" value="bing"> Bing</label>
-    <label><input type="radio" name="engine" value="duckduckgo"> DuckDuckGo</label>
+<div class="player-container">
+    <div class="playlist">
+        <button onclick="playSong(0)">🎵 曲1: 心地よいメロディ</button>
+        <button onclick="playSong(1)">🎵 曲2: ジャズセッション</button>
+        <button onclick="playSong(2)">🎵 曲3: エレクトロビート</button>
+    </div>
+    <audio id="audioPlayer" controls>
+        <source id="audioSource" src="" type="audio/mpeg">
+        お使いのブラウザはオーディオタグをサポートしていません。
+    </audio>
+    <div class="controls">
+        <button onclick="pauseAudio()">⏸️ 一時停止</button>
+        <button onclick="resumeAudio()">▶️ 再生</button>
+        <button onclick="stopAudio()">⏹️ 停止</button>
+    </div>
+    <div class="volume-control">
+        <label for="volume">音量調整: </label>
+        <input type="range" id="volume" min="0" max="1" step="0.01" value="0.5" onchange="adjustVolume()">
+    </div>
+    <div id="visualizer" class="visualizer"></div>
 </div>
 
 <script>
-    function performSearch() {
-        const query = document.getElementById("searchQuery").value.trim();
-        if (!query) {
-            alert("検索キーワードを入力してください！");
-            return;
-        }
+    const audioPlayer = document.getElementById("audioPlayer");
+    const audioSource = document.getElementById("audioSource");
+    const visualizer = document.getElementById("visualizer");
+    const volumeSlider = document.getElementById("volume");
 
-        const selectedEngine = document.querySelector('input[name="engine"]:checked').value;
-        let searchUrl = "";
+    const playlist = [
+        { title: "心地よいメロディ", file: "song1.mp3" },
+        { title: "ジャズセッション", file: "song2.mp3" },
+        { title: "エレクトロビート", file: "song3.mp3" }
+    ];
 
-        switch (selectedEngine) {
-            case "google":
-                searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-                break;
-            case "bing":
-                searchUrl = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
-                break;
-            case "duckduckgo":
-                searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
-                break;
-            default:
-                alert("検索エンジンを選択してください！");
-                return;
-        }
+    let currentIndex = 0;
 
-        window.open(searchUrl, "_blank");
+    function playSong(index) {
+        currentIndex = index;
+        audioSource.src = playlist[index].file;
+        audioPlayer.load();
+        audioPlayer.play();
     }
+
+    function pauseAudio() {
+        audioPlayer.pause();
+    }
+
+    function resumeAudio() {
+        audioPlayer.play();
+    }
+
+    function stopAudio() {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+    }
+
+    function adjustVolume() {
+        audioPlayer.volume = volumeSlider.value;
+    }
+
+    // ビジュアライザーの設定
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioContext.createAnalyser();
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    const sourceNode = audioContext.createMediaElementSource(audioPlayer);
+
+    sourceNode.connect(analyser);
+    analyser.connect(audioContext.destination);
+
+    function drawVisualizer() {
+        const canvas = visualizer.getContext('2d');
+        analyser.getByteFrequencyData(dataArray);
+
+        canvas.fillStyle = 'black';
+        canvas.fillRect(0, 0, visualizer.width, visualizer.height);
+
+        const barWidth = (visualizer.width / dataArray.length) * 2.5;
+        let barHeight;
+        let x = 0;
+
+        for (let i = 0; i < dataArray.length; i++) {
+            barHeight = dataArray[i];
+            canvas.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
+            canvas.fillRect(x, visualizer.height - barHeight / 2, barWidth, barHeight / 2);
+            x += barWidth + 1;
+        }
+
+        requestAnimationFrame(drawVisualizer);
+    }
+
+    visualizer.width = 600;
+    visualizer.height = 100;
+    drawVisualizer();
 </script>
 
 </body>
