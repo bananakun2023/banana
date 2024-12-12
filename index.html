@@ -3,174 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大富豪</title>
+    <title>検索サイト</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #004d40;
-            color: white;
+            background-color: #f4f4f4;
+            color: #333;
             margin: 0;
             padding: 0;
         }
         h1 {
             margin: 20px;
-            color: #ffe082;
+            color: #444;
         }
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .search-container {
+            margin: 40px auto;
+            max-width: 500px;
         }
-        .hand, .table {
-            display: flex;
-            margin: 20px;
-            flex-wrap: wrap;
-        }
-        .card {
-            width: 80px;
-            height: 120px;
-            border-radius: 10px;
-            margin: 5px;
-            background-color: white;
-            color: black;
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
             font-size: 18px;
-            font-weight: bold;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
-        }
-        .disabled {
-            background-color: gray;
-            color: white;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        .special {
-            background-color: gold;
-        }
-        .result {
-            font-size: 24px;
-            margin: 20px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
         }
         button {
-            background-color: #009688;
-            color: white;
-            border: none;
-            padding: 15px 30px;
+            padding: 10px 20px;
             font-size: 18px;
+            color: white;
+            background-color: #007bff;
+            border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin-left: 5px;
         }
         button:hover {
-            background-color: #00796b;
+            background-color: #0056b3;
+        }
+        .search-engines {
+            margin: 20px auto;
+        }
+        .search-engines label {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        .search-engines input {
+            margin-right: 5px;
         }
     </style>
 </head>
 <body>
 
-<h1>大富豪 - 特殊ルール付き</h1>
-<div class="game-container">
-    <div id="table" class="table">
-        <p>場にカードはありません</p>
-    </div>
-    <div id="hand" class="hand">
-        <!-- プレイヤーの手札 -->
-    </div>
-    <button onclick="resetGame()">ゲームリセット</button>
-    <div id="result" class="result"></div>
+<h1>検索サイト</h1>
+
+<div class="search-container">
+    <input type="text" id="searchQuery" placeholder="検索キーワードを入力してください">
+    <button onclick="performSearch()">検索</button>
+</div>
+
+<div class="search-engines">
+    <label><input type="radio" name="engine" value="google" checked> Google</label>
+    <label><input type="radio" name="engine" value="bing"> Bing</label>
+    <label><input type="radio" name="engine" value="duckduckgo"> DuckDuckGo</label>
 </div>
 
 <script>
-    // カード生成
-    const suits = ["♥", "♦", "♠", "♣"];
-    const ranks = ["3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A", "2"];
-    let deck = [];
-    for (const suit of suits) {
-        for (const rank of ranks) {
-            deck.push({ suit, rank, value: ranks.indexOf(rank) + 1 });
-        }
-    }
-
-    // 手札とテーブルカード
-    let playerHand = [];
-    let tableCard = null;
-
-    // ゲーム初期化
-    function resetGame() {
-        deck = shuffle(deck);
-        playerHand = deck.slice(0, 8); // プレイヤーの手札
-        tableCard = null;
-        document.getElementById("result").textContent = "";
-        updateUI();
-    }
-
-    // デッキシャッフル
-    function shuffle(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    }
-
-    // UI更新
-    function updateUI() {
-        const handDiv = document.getElementById("hand");
-        const tableDiv = document.getElementById("table");
-
-        // テーブルカード
-        tableDiv.innerHTML = tableCard
-            ? `<div class="card ${tableCard.rank === "8" ? "special" : ""}">${tableCard.suit}${tableCard.rank}</div>`
-            : "<p>場にカードはありません</p>";
-
-        // 手札
-        handDiv.innerHTML = "";
-        playerHand.forEach((card, index) => {
-            const cardDiv = document.createElement("div");
-            cardDiv.className = `card ${isCardPlayable(card) ? "" : "disabled"}`;
-            cardDiv.textContent = `${card.suit}${card.rank}`;
-            cardDiv.onclick = () => playCard(index);
-            handDiv.appendChild(cardDiv);
-        });
-    }
-
-    // 特殊ルールの判定
-    function isCardPlayable(card) {
-        if (!tableCard) return true; // テーブルが空なら出せる
-        if (card.rank === "8") return true; // 8切り
-        if (tableCard.rank === "3" && tableCard.suit === "♠") return false; // スペード3が最強
-        return card.value > tableCard.value; // 高いカードのみ出せる
-    }
-
-    // カードを出す
-    function playCard(index) {
-        const card = playerHand[index];
-        if (!isCardPlayable(card)) return; // 出せないカード
-        if (card.rank === "8") {
-            alert("8切り！場がリセットされます！");
-            tableCard = null; // 場をリセット
-        } else {
-            tableCard = card; // カードを場に置く
-        }
-        playerHand.splice(index, 1); // 手札から削除
-        if (playerHand.length === 0) {
-            document.getElementById("result").textContent = "おめでとうございます！あなたの勝ちです！";
+    function performSearch() {
+        const query = document.getElementById("searchQuery").value.trim();
+        if (!query) {
+            alert("検索キーワードを入力してください！");
             return;
         }
-        updateUI();
-    }
 
-    // ゲーム開始
-    resetGame();
+        const selectedEngine = document.querySelector('input[name="engine"]:checked').value;
+        let searchUrl = "";
+
+        switch (selectedEngine) {
+            case "google":
+                searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                break;
+            case "bing":
+                searchUrl = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
+                break;
+            case "duckduckgo":
+                searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+                break;
+            default:
+                alert("検索エンジンを選択してください！");
+                return;
+        }
+
+        window.open(searchUrl, "_blank");
+    }
 </script>
 
 </body>
