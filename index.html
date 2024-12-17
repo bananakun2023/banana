@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音楽サイト</title>
+    <title>高度な音楽作成サイト</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,167 +17,240 @@
             margin: 20px;
             color: #ffcc00;
         }
-        .player-container {
-            margin: 40px auto;
-            max-width: 600px;
-            background-color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        .keyboard-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px;
         }
-        .playlist {
-            margin: 20px 0;
-        }
-        .playlist button {
-            background-color: #444;
-            color: white;
-            border: none;
-            padding: 10px 20px;
+        .key {
+            width: 60px;
+            height: 200px;
             margin: 5px;
+            background: white;
+            border: 2px solid #000;
             border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
             cursor: pointer;
-            font-size: 16px;
+            color: black;
+            font-weight: bold;
         }
-        .playlist button:hover {
-            background-color: #555;
+        .key.black {
+            width: 40px;
+            height: 120px;
+            background: black;
+            color: white;
+            position: relative;
+            z-index: 1;
+            margin-left: -20px;
+            margin-right: -20px;
         }
-        audio {
-            width: 100%;
+        .key:active {
+            background: #ffcc00;
+        }
+        .controls, .settings {
             margin-top: 20px;
         }
-        .controls {
-            margin-top: 20px;
-        }
-        .controls button {
+        button {
             background-color: #ffcc00;
             color: #1e1e1e;
             border: none;
             padding: 10px 20px;
-            margin: 5px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
+            margin: 5px;
         }
-        .controls button:hover {
+        button:hover {
             background-color: #ffaa00;
         }
-        .volume-control {
-            margin-top: 20px;
-        }
-        .volume-control input[type="range"] {
-            width: 80%;
+        select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px solid #444;
+            background: #333;
+            color: white;
+            font-size: 16px;
         }
         .visualizer {
-            margin-top: 20px;
-            width: 100%;
-            height: 100px;
+            margin: 20px auto;
+            width: 80%;
+            height: 150px;
             background: black;
             border-radius: 5px;
-        }
-        @media (max-width: 768px) {
-            .player-container {
-                width: 90%;
-            }
+            position: relative;
         }
     </style>
 </head>
 <body>
 
-<h1>音楽サイト</h1>
+<h1>高度な音楽作成サイト</h1>
 
-<div class="player-container">
-    <div class="playlist">
-        <button onclick="playSong(0)">🎵 曲1: 心地よいメロディ</button>
-        <button onclick="playSong(1)">🎵 曲2: ジャズセッション</button>
-        <button onclick="playSong(2)">🎵 曲3: エレクトロビート</button>
-    </div>
-    <audio id="audioPlayer" controls>
-        <source id="audioSource" src="" type="audio/mpeg">
-        お使いのブラウザはオーディオタグをサポートしていません。
-    </audio>
-    <div class="controls">
-        <button onclick="pauseAudio()">⏸️ 一時停止</button>
-        <button onclick="resumeAudio()">▶️ 再生</button>
-        <button onclick="stopAudio()">⏹️ 停止</button>
-    </div>
-    <div class="volume-control">
-        <label for="volume">音量調整: </label>
-        <input type="range" id="volume" min="0" max="1" step="0.01" value="0.5" onchange="adjustVolume()">
-    </div>
-    <div id="visualizer" class="visualizer"></div>
+<div class="settings">
+    <label for="waveform">音色選択: </label>
+    <select id="waveform">
+        <option value="sine">サイン波 (Piano)</option>
+        <option value="square">スクエア波 (Synth)</option>
+        <option value="triangle">三角波 (Bell)</option>
+        <option value="sawtooth">のこぎり波 (Strings)</option>
+    </select>
 </div>
 
+<div class="keyboard-container">
+    <div class="key" data-note="C">C</div>
+    <div class="key black" data-note="C#">C#</div>
+    <div class="key" data-note="D">D</div>
+    <div class="key black" data-note="D#">D#</div>
+    <div class="key" data-note="E">E</div>
+    <div class="key" data-note="F">F</div>
+    <div class="key black" data-note="F#">F#</div>
+    <div class="key" data-note="G">G</div>
+    <div class="key black" data-note="G#">G#</div>
+    <div class="key" data-note="A">A</div>
+    <div class="key black" data-note="A#">A#</div>
+    <div class="key" data-note="B">B</div>
+</div>
+
+<div class="controls">
+    <button onclick="startRecording()">🎤 録音開始</button>
+    <button onclick="stopRecording()">⏹️ 録音停止</button>
+    <button onclick="playRecording()">▶️ 再生</button>
+</div>
+
+<canvas id="visualizer" class="visualizer"></canvas>
+
 <script>
-    const audioPlayer = document.getElementById("audioPlayer");
-    const audioSource = document.getElementById("audioSource");
-    const visualizer = document.getElementById("visualizer");
-    const volumeSlider = document.getElementById("volume");
-
-    const playlist = [
-        { title: "心地よいメロディ", file: "song1.mp3" },
-        { title: "ジャズセッション", file: "song2.mp3" },
-        { title: "エレクトロビート", file: "song3.mp3" }
-    ];
-
-    let currentIndex = 0;
-
-    function playSong(index) {
-        currentIndex = index;
-        audioSource.src = playlist[index].file;
-        audioPlayer.load();
-        audioPlayer.play();
-    }
-
-    function pauseAudio() {
-        audioPlayer.pause();
-    }
-
-    function resumeAudio() {
-        audioPlayer.play();
-    }
-
-    function stopAudio() {
-        audioPlayer.pause();
-        audioPlayer.currentTime = 0;
-    }
-
-    function adjustVolume() {
-        audioPlayer.volume = volumeSlider.value;
-    }
-
-    // ビジュアライザーの設定
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const analyser = audioContext.createAnalyser();
-    const dataArray = new Uint8Array(analyser.frequencyBinCount);
-    const sourceNode = audioContext.createMediaElementSource(audioPlayer);
+    const oscillators = {};
+    const recording = [];
+    let isRecording = false;
+    const waveformSelect = document.getElementById('waveform');
 
+    // 音の周波数マッピング
+    const notes = {
+        "C": 261.63,
+        "C#": 277.18,
+        "D": 293.66,
+        "D#": 311.13,
+        "E": 329.63,
+        "F": 349.23,
+        "F#": 369.99,
+        "G": 392.00,
+        "G#": 415.30,
+        "A": 440.00,
+        "A#": 466.16,
+        "B": 493.88
+    };
+
+    // 音を再生
+    function playNote(note) {
+        if (!notes[note]) return;
+
+        const osc = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        osc.type = waveformSelect.value; // 選択された音色
+        osc.frequency.value = notes[note];
+        osc.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        osc.start();
+        gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
+
+        setTimeout(() => osc.stop(), 1000);
+
+        // 録音中なら記録
+        if (isRecording) {
+            recording.push({ note, time: audioContext.currentTime, waveform: waveformSelect.value });
+        }
+    }
+
+    // 録音開始
+    function startRecording() {
+        recording.length = 0;
+        isRecording = true;
+        alert("録音を開始しました！");
+    }
+
+    // 録音停止
+    function stopRecording() {
+        isRecording = false;
+        alert("録音を停止しました！");
+    }
+
+    // 録音再生
+    function playRecording() {
+        if (recording.length === 0) {
+            alert("録音データがありません！");
+            return;
+        }
+
+        const startTime = recording[0].time;
+        recording.forEach((entry) => {
+            const delay = (entry.time - startTime) * 1000;
+            setTimeout(() => {
+                waveformSelect.value = entry.waveform; // 波形を再設定
+                playNote(entry.note);
+            }, delay);
+        });
+    }
+
+    // キーボードのクリックイベント
+    document.querySelectorAll(".key").forEach(key => {
+        key.addEventListener("mousedown", () => playNote(key.dataset.note));
+    });
+
+    // ビジュアライザー設定
+    const canvas = document.getElementById('visualizer');
+    const canvasContext = canvas.getContext('2d');
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    const sourceNode = audioContext.createGain();
     sourceNode.connect(analyser);
     analyser.connect(audioContext.destination);
 
+    canvas.width = window.innerWidth * 0.8;
+    canvas.height = 150;
+
     function drawVisualizer() {
-        const canvas = visualizer.getContext('2d');
+        requestAnimationFrame(drawVisualizer);
+
         analyser.getByteFrequencyData(dataArray);
+        canvasContext.fillStyle = 'black';
+        canvasContext.fillRect(0, 0, canvas.width, canvas.height);
 
-        canvas.fillStyle = 'black';
-        canvas.fillRect(0, 0, visualizer.width, visualizer.height);
-
-        const barWidth = (visualizer.width / dataArray.length) * 2.5;
-        let barHeight;
+        const barWidth = (canvas.width / bufferLength) * 2.5;
         let x = 0;
 
-        for (let i = 0; i < dataArray.length; i++) {
-            barHeight = dataArray[i];
-            canvas.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
-            canvas.fillRect(x, visualizer.height - barHeight / 2, barWidth, barHeight / 2);
+        for (let i = 0; i < bufferLength; i++) {
+            const barHeight = dataArray[i];
+            canvasContext.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
+            canvasContext.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
             x += barWidth + 1;
         }
-
-        requestAnimationFrame(drawVisualizer);
     }
 
-    visualizer.width = 600;
-    visualizer.height = 100;
     drawVisualizer();
+
+    // MIDIサポート
+    if (navigator.requestMIDIAccess) {
+        navigator.requestMIDIAccess().then(midiAccess => {
+            midiAccess.inputs.forEach(input => {
+                input.onmidimessage = (message) => {
+                    const [type, note, velocity] = message.data;
+                    if (type === 144 && velocity > 0) { // ノートオン
+                        const noteName = Object.keys(notes)[note % 12];
+                        playNote(noteName);
+                    }
+                };
+            });
+        });
+    }
 </script>
 
 </body>
