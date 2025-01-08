@@ -1,1696 +1,210 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-<meta charset='UTF-8'>
-<title> ショッピングサイトで買い物しよう「ねそプロ」 </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高度な脱出ゲーム</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #1e1e1e;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin: 20px;
+            color: #ffcc00;
+        }
+        .game-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            width: 80%;
+            margin: 20px auto;
+        }
+        .item {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            background: #444;
+            border: 2px solid #222;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+        }
+        .item.hidden {
+            background: #222;
+        }
+        #message {
+            margin: 20px;
+            font-size: 18px;
+            color: #ffcc00;
+        }
+        button {
+            background-color: #ffcc00;
+            color: #1e1e1e;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px;
+        }
+        button:hover {
+            background-color: #ffaa00;
+        }
+        #timer {
+            margin: 10px;
+            font-size: 20px;
+            color: #ff3333;
+        }
+    </style>
 </head>
 <body>
-<div class='shopName'>HHCH最高</div>
-<button id='shoppingCart' class='bs4'>
-<!-- <img src='image/shopping_cart.png' width='36' height='36' align='left'> -->
-　カートボタン<br>
-選んだ商品を買う
-</button>
-<div id='displayText' style='width:400px; height:300px; background-color:#ddf; overflow-y:scroll;'>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/b3.jpg' align='left'> -->
-　<b><span id='name_1'>ノート</span></b><br>　<b><span id='en_1'>99900</span>円</b><br>　上質な紙のノートです</td>
-<td><button id='up_1' class='up_class'>▲</button><br>
-<button id='down_1' class='down_class'>▼</button></td>
-<td><span id='gch_number1'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/f5.jpg' align='left'> -->
-　<b><span id='name_2'>バスケットボール</span></b><br>　<b><span id='en_2'>99900</span>円</b><br>　チーム名記入をサービス</td>
-<td><button id='up_2' class='up_class'>▲</button><br>
-<button id='down_2' class='down_class'>▼</button></td>
-<td><span id='gch_number2'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/133.jpg' align='left'> -->
-　<b><span id='name_3'>ストーブ(灯油)</span></b><br>　<b><span id='en_3'>99900</span>円</b><br>電源不要で利用可</td>
-<td><button id='up_3' class='up_class'>▲</button><br>
-<button id='down_3' class='down_class'>▼</button></td>
-<td><span id='gch_number3'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/c10.jpg' align='left'> -->
-　<b><span id='name_4'>片手鍋</span></b><br>　<b><span id='en_4'>1000</span>円</b><br>　直径20cm、アルミ製</td>
-<td><button id='up_4' class='up_class'>▲</button><br>
-<button id='down_4' class='down_class'>▼</button></td>
-<td><span id='gch_number4'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/c3.jpg' align='left'> -->
-　<b><span id='name_5'>財布</span></b><br>　<b><span id='en_5'>800</span>円</b><br>　布製</td>
-<td><button id='up_5' class='up_class'>▲</button><br>
-<button id='down_5' class='down_class'>▼</button></td>
-<td><span id='gch_number5'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/c1.jpg' align='left'> -->
-　<b><span id='name_6'>貯金箱（陶器）</span></b><br>　<b><span id='en_6'>1000</span>円</b><br>　陶器製</td>
-<td><button id='up_6' class='up_class'>▲</button><br>
-<button id='down_6' class='down_class'>▼</button></td>
-<td><span id='gch_number6'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/130.jpg' align='left'> -->
-　<b><span id='name_7'>ほうき、ちり取り</span></b><br>　<b><span id='en_7'>30000</span>円</b><br>組み合わせて収納可能</td>
-<td><button id='up_7' class='up_class'>▲</button><br>
-<button id='down_7' class='down_class'>▼</button></td>
-<td><span id='gch_number7'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/c9.jpg' align='left'> -->
-　<b><span id='name_8'>しゃもじ</span></b><br>　<b><span id='en_8'>99900</span>円</b><br>　プラスチック製</td>
-<td><button id='up_8' class='up_class'>▲</button><br>
-<button id='down_8' class='down_class'>▼</button></td>
-<td><span id='gch_number8'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/c8.jpg' align='left'> -->
-　<b><span id='name_9'>フライパン</span></b><br>　<b><span id='en_9'>1000</span>円</b><br>　直径30cm、テフロン加工</td>
-<td><button id='up_9' class='up_class'>▲</button><br>
-<button id='down_9' class='down_class'>▼</button></td>
-<td><span id='gch_number9'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h10.jpg' align='left'> -->
-　<b><span id='name_10'>オーバーオール</span></b><br>　<b><span id='en_10'>5000</span>円</b><br>　綿製</td>
-<td><button id='up_10' class='up_class'>▲</button><br>
-<button id='down_10' class='down_class'>▼</button></td>
-<td><span id='gch_number10'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h1.jpg' align='left'> -->
-　<b><span id='name_11'>ワイシャツ</span></b><br>　<b><span id='en_11'>3000</span>円</b><br>形状記憶加工</td>
-<td><button id='up_11' class='up_class'>▲</button><br>
-<button id='down_11' class='down_class'>▼</button></td>
-<td><span id='gch_number11'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/131.jpg' align='left'> -->
-　<b><span id='name_12'>毛布</span></b><br>　<b><span id='en_12'>500</span>円</b><br>災害備蓄用(140×200cm)</td>
-<td><button id='up_12' class='up_class'>▲</button><br>
-<button id='down_12' class='down_class'>▼</button></td>
-<td><span id='gch_number12'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h2.jpg' align='left'> -->
-　<b><span id='name_13'>ポロシャツ</span></b><br>　<b><span id='en_13'>3000</span>円</b><br>　綿製</td>
-<td><button id='up_13' class='up_class'>▲</button><br>
-<button id='down_13' class='down_class'>▼</button></td>
-<td><span id='gch_number13'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h6.jpg' align='left'> -->
-　<b><span id='name_14'>ジャケット</span></b><br>　<b><span id='en_14'>8000</span>円</b><br>毛混紡</td>
-<td><button id='up_14' class='up_class'>▲</button><br>
-<button id='down_14' class='down_class'>▼</button></td>
-<td><span id='gch_number14'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h5.jpg' align='left'> -->
-　<b><span id='name_15'>パーカー</span></b><br>　<b><span id='en_15'>99900</span>円</b><br>ポリエステル・綿</td>
-<td><button id='up_15' class='up_class'>▲</button><br>
-<button id='down_15' class='down_class'>▼</button></td>
-<td><span id='gch_number15'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h3.jpg' align='left'> -->
-　<b><span id='name_16'>Ｔシャツ</span></b><br>　<b><span id='en_16'>99900</span>円</b><br>　綿製、2枚組</td>
-<td><button id='up_16' class='up_class'>▲</button><br>
-<button id='down_16' class='down_class'>▼</button></td>
-<td><span id='gch_number16'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h4.jpg' align='left'> -->
-　<b><span id='name_17'>カーディガン</span></b><br>　<b><span id='en_17'>3000</span>円</b><br>羊毛製</td>
-<td><button id='up_17' class='up_class'>▲</button><br>
-<button id='down_17' class='down_class'>▼</button></td>
-<td><span id='gch_number17'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h7.jpg' align='left'> -->
-　<b><span id='name_18'>ズボン</span></b><br>　<b><span id='en_18'>4000</span>円</b><br>綿・ポリエステル製</td>
-<td><button id='up_18' class='up_class'>▲</button><br>
-<button id='down_18' class='down_class'>▼</button></td>
-<td><span id='gch_number18'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h11.jpg' align='left'> -->
-　<b><span id='name_19'>プリーツスカート</span></b><br>　<b><span id='en_19'>3000</span>円</b><br>綿・ポリエステル</td>
-<td><button id='up_19' class='up_class'>▲</button><br>
-<button id='down_19' class='down_class'>▼</button></td>
-<td><span id='gch_number19'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h8.jpg' align='left'> -->
-　<b><span id='name_20'>ジーパン</span></b><br>　<b><span id='en_20'>4000</span>円</b><br>　綿製</td>
-<td><button id='up_20' class='up_class'>▲</button><br>
-<button id='down_20' class='down_class'>▼</button></td>
-<td><span id='gch_number20'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h9.jpg' align='left'> -->
-　<b><span id='name_21'>カーゴパンツ</span></b><br>　<b><span id='en_21'>4500</span>円</b><br>綿・ポリエステル</td>
-<td><button id='up_21' class='up_class'>▲</button><br>
-<button id='down_21' class='down_class'>▼</button></td>
-<td><span id='gch_number21'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h12.jpg' align='left'> -->
-　<b><span id='name_22'>スカート</span></b><br>　<b><span id='en_22'>0</span>円</b><br>綿・ポリエステル</td>
-<td><button id='up_22' class='up_class'>▲</button><br>
-<button id='down_22' class='down_class'>▼</button></td>
-<td><span id='gch_number22'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h11.jpg' align='left'> -->
-　<b><span id='name_23'>プリーツスカート</span></b><br>　<b><span id='en_23'>3000</span>円</b><br>綿・ポリエステル</td>
-<td><button id='up_23' class='up_class'>▲</button><br>
-<button id='down_23' class='down_class'>▼</button></td>
-<td><span id='gch_number23'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/134.jpg' align='left'> -->
-　<b><span id='name_24'>灯油18L</span></b><br>　<b><span id='en_24'>520</span>円</b><br>可燃性、取扱注意</td>
-<td><button id='up_24' class='up_class'>▲</button><br>
-<button id='down_24' class='down_class'>▼</button></td>
-<td><span id='gch_number24'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/122.jpg' align='left'> -->
-　<b><span id='name_25'>子ども用紙おむつ(60枚)</span></b><br>　<b><span id='en_25'>0</span>円</b><br>5～10kg児用</td>
-<td><button id='up_25' class='up_class'>▲</button><br>
-<button id='down_25' class='down_class'>▼</button></td>
-<td><span id='gch_number25'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/121.jpg' align='left'> -->
-　<b><span id='name_26'>粉ミルク(800g)</span></b><br>　<b><span id='en_26'>2000</span>円</b><br>乳児用粉ミルク</td>
-<td><button id='up_26' class='up_class'>▲</button><br>
-<button id='down_26' class='down_class'>▼</button></td>
-<td><span id='gch_number26'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h14.jpg' align='left'> -->
-　<b><span id='name_27'>ワンピース(紺)</span></b><br>　<b><span id='en_27'>8500</span>円</b><br>おしゃれなデザイン</td>
-<td><button id='up_27' class='up_class'>▲</button><br>
-<button id='down_27' class='down_class'>▼</button></td>
-<td><span id='gch_number27'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h12.jpg' align='left'> -->
-　<b><span id='name_28'>スカート</span></b><br>　<b><span id='en_28'>2500</span>円</b><br>綿・ポリエステル</td>
-<td><button id='up_28' class='up_class'>▲</button><br>
-<button id='down_28' class='down_class'>▼</button></td>
-<td><span id='gch_number28'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h13.jpg' align='left'> -->
-　<b><span id='name_29'>ワンピース(黄)</span></b><br>　<b><span id='en_29'>8000</span>円</b><br>シンプルなデザイン</td>
-<td><button id='up_29' class='up_class'>▲</button><br>
-<button id='down_29' class='down_class'>▼</button></td>
-<td><span id='gch_number29'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/115.jpg' align='left'> -->
-　<b><span id='name_30'>オレンジジュース(350mL)</span></b><br>　<b><span id='en_30'>140</span>円</b><br>果汁100%</td>
-<td><button id='up_30' class='up_class'>▲</button><br>
-<button id='down_30' class='down_class'>▼</button></td>
-<td><span id='gch_number30'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/114.jpg' align='left'> -->
-　<b><span id='name_31'>コーラ(500mL)</span></b><br>　<b><span id='en_31'>1000</span>円</b><br>おいしいコーラ</td>
-<td><button id='up_31' class='up_class'>▲</button><br>
-<button id='down_31' class='down_class'>▼</button></td>
-<td><span id='gch_number31'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h17.jpg' align='left'> -->
-　<b><span id='name_32'>ショートパンツ</span></b><br>　<b><span id='en_32'>2500</span>円</b><br>　綿製</td>
-<td><button id='up_32' class='up_class'>▲</button><br>
-<button id='down_32' class='down_class'>▼</button></td>
-<td><span id='gch_number32'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h15.jpg' align='left'> -->
-　<b><span id='name_33'>ワンピース(桃)</span></b><br>　<b><span id='en_33'>8500</span>円</b><br>フワッとしたデザイン</td>
-<td><button id='up_33' class='up_class'>▲</button><br>
-<button id='down_33' class='down_class'>▼</button></td>
-<td><span id='gch_number33'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/115.jpg' align='left'> -->
-　<b><span id='name_34'>オレンジジュース(350mL)</span></b><br>　<b><span id='en_34'>140</span>円</b><br>果汁100%</td>
-<td><button id='up_34' class='up_class'>▲</button><br>
-<button id='down_34' class='down_class'>▼</button></td>
-<td><span id='gch_number34'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/106.jpg' align='left'> -->
-　<b><span id='name_35'>カレーライス</span></b><br>　<b><span id='en_35'>1</span>円</b><br>レトルトご飯とカレーのセット</td>
-<td><button id='up_35' class='up_class'>▲</button><br>
-<button id='down_35' class='down_class'>▼</button></td>
-<td><span id='gch_number35'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/105.jpg' align='left'> -->
-　<b><span id='name_36'>大盛ご飯(300g)</span></b><br>　<b><span id='en_36'>1</span>円</b><br>レトルトご飯</td>
-<td><button id='up_36' class='up_class'>▲</button><br>
-<button id='down_36' class='down_class'>▼</button></td>
-<td><span id='gch_number36'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h18.jpg' align='left'> -->
-　<b><span id='name_37'>ソックス</span></b><br>　<b><span id='en_37'>800</span>円</b><br>綿製、２足組</td>
-<td><button id='up_37' class='up_class'>▲</button><br>
-<button id='down_37' class='down_class'>▼</button></td>
-<td><span id='gch_number37'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h20.jpg' align='left'> -->
-　<b><span id='name_38'>革靴</span></b><br>　<b><span id='en_38'>8000</span>円</b><br>21～28cmあり</td>
-<td><button id='up_38' class='up_class'>▲</button><br>
-<button id='down_38' class='down_class'>▼</button></td>
-<td><span id='gch_number38'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h17.jpg' align='left'> -->
-　<b><span id='name_39'>ショートパンツ</span></b><br>　<b><span id='en_39'>2500</span>円</b><br>　綿製</td>
-<td><button id='up_39' class='up_class'>▲</button><br>
-<button id='down_39' class='down_class'>▼</button></td>
-<td><span id='gch_number39'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/h19.jpg' align='left'> -->
-　<b><span id='name_40'>ベレー帽</span></b><br>　<b><span id='en_40'>2000</span>円</b><br>　羊毛製</td>
-<td><button id='up_40' class='up_class'>▲</button><br>
-<button id='down_40' class='down_class'>▼</button></td>
-<td><span id='gch_number40'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/103.jpg' align='left'> -->
-　<b><span id='name_41'>おにぎり(鮭)</span></b><br>　<b><span id='en_41'>110</span>円</b><br>レトルトパック</td>
-<td><button id='up_41' class='up_class'>▲</button><br>
-<button id='down_41' class='down_class'>▼</button></td>
-<td><span id='gch_number41'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/101.jpg' align='left'> -->
-　<b><span id='name_42'>おにぎり</span></b><br>　<b><span id='en_42'>100</span>円</b><br>レトルトパック</td>
-<td><button id='up_42' class='up_class'>▲</button><br>
-<button id='down_42' class='down_class'>▼</button></td>
-<td><span id='gch_number42'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/102.jpg' align='left'> -->
-　<b><span id='name_43'>おにぎり(明太子)</span></b><br>　<b><span id='en_43'>110</span>円</b><br>レトルトパック</td>
-<td><button id='up_43' class='up_class'>▲</button><br>
-<button id='down_43' class='down_class'>▼</button></td>
-<td><span id='gch_number43'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/104.jpg' align='left'> -->
-　<b><span id='name_44'>ご飯(200g)</span></b><br>　<b><span id='en_44'>1000</span>円</b><br>レトルトご飯</td>
-<td><button id='up_44' class='up_class'>▲</button><br>
-<button id='down_44' class='down_class'>▼</button></td>
-<td><span id='gch_number44'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/113.jpg' align='left'> -->
-　<b><span id='name_45'>水(2L×2本)</span></b><br>　<b><span id='en_45'>500</span>円</b><br>お徳用ミネラルウォーター</td>
-<td><button id='up_45' class='up_class'>▲</button><br>
-<button id='down_45' class='down_class'>▼</button></td>
-<td><span id='gch_number45'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/112.jpg' align='left'> -->
-　<b><span id='name_46'>お茶(500mL)</span></b><br>　<b><span id='en_46'>100</span>円</b><br>おいしいお茶</td>
-<td><button id='up_46' class='up_class'>▲</button><br>
-<button id='down_46' class='down_class'>▼</button></td>
-<td><span id='gch_number46'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/111.jpg' align='left'> -->
-　<b><span id='name_47'>水(500mL)</span></b><br>　<b><span id='en_47'>100</span>円</b><br>おいしいミネラルウォーター</td>
-<td><button id='up_47' class='up_class'>▲</button><br>
-<button id='down_47' class='down_class'>▼</button></td>
-<td><span id='gch_number47'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/107.jpg' align='left'> -->
-　<b><span id='name_48'>みそ汁</span></b><br>　<b><span id='en_48'>1000</span>円</b><br>フリーズドライ</td>
-<td><button id='up_48' class='up_class'>▲</button><br>
-<button id='down_48' class='down_class'>▼</button></td>
-<td><span id='gch_number48'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/110.jpg' align='left'> -->
-　<b><span id='name_49'>ベーグル</span></b><br>　<b><span id='en_49'>120</span>円</b><br>脱酸素処理、長期保存可</td>
-<td><button id='up_49' class='up_class'>▲</button><br>
-<button id='down_49' class='down_class'>▼</button></td>
-<td><span id='gch_number49'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/109.jpg' align='left'> -->
-　<b><span id='name_50'>コッペパン</span></b><br>　<b><span id='en_50'>120</span>円</b><br>脱酸素処理、長期保存可</td>
-<td><button id='up_50' class='up_class'>▲</button><br>
-<button id='down_50' class='down_class'>▼</button></td>
-<td><span id='gch_number50'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/108.jpg' align='left'> -->
-　<b><span id='name_51'>食パン(6枚切)</span></b><br>　<b><span id='en_51'>220</span>円</b><br>脱酸素処理、長期保存可</td>
-<td><button id='up_51' class='up_class'>▲</button><br>
-<button id='down_51' class='down_class'>▼</button></td>
-<td><span id='gch_number51'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/116.jpg' align='left'> -->
-　<b><span id='name_52'>カップラーメン醤油味</span></b><br>　<b><span id='en_52'>140</span>円</b><br>お湯を入れて3分間</td>
-<td><button id='up_52' class='up_class'>▲</button><br>
-<button id='down_52' class='down_class'>▼</button></td>
-<td><span id='gch_number52'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/133.jpg' align='left'> -->
-　<b><span id='name_53'>ストーブ(灯油)</span></b><br>　<b><span id='en_53'>20000</span>円</b><br>電源不要で利用可</td>
-<td><button id='up_53' class='up_class'>▲</button><br>
-<button id='down_53' class='down_class'>▼</button></td>
-<td><span id='gch_number53'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/116.jpg' align='left'> -->
-　<b><span id='name_54'>カップラーメン醤油味</span></b><br>　<b><span id='en_54'>140</span>円</b><br>お湯を入れて3分間</td>
-<td><button id='up_54' class='up_class'>▲</button><br>
-<button id='down_54' class='down_class'>▼</button></td>
-<td><span id='gch_number54'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/120.jpg' align='left'> -->
-　<b><span id='name_55'>カンパン</span></b><br>　<b><span id='en_55'>400</span>円</b><br>非常食用、長期保存可</td>
-<td><button id='up_55' class='up_class'>▲</button><br>
-<button id='down_55' class='down_class'>▼</button></td>
-<td><span id='gch_number55'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/119.jpg' align='left'> -->
-　<b><span id='name_56'>サバみそ煮缶詰</span></b><br>　<b><span id='en_56'>200</span>円</b><br>おいしいサバです</td>
-<td><button id='up_56' class='up_class'>▲</button><br>
-<button id='down_56' class='down_class'>▼</button></td>
-<td><span id='gch_number56'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/117.jpg' align='left'> -->
-　<b><span id='name_57'>カップラーメンみそ、塩</span></b><br>　<b><span id='en_57'>250</span>円</b><br>2個セットでお得</td>
-<td><button id='up_57' class='up_class'>▲</button><br>
-<button id='down_57' class='down_class'>▼</button></td>
-<td><span id='gch_number57'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/118.jpg' align='left'> -->
-　<b><span id='name_58'>レトルト餃子</span></b><br>　<b><span id='en_58'>300</span>円</b><br>常温保存可能レトルト</td>
-<td><button id='up_58' class='up_class'>▲</button><br>
-<button id='down_58' class='down_class'>▼</button></td>
-<td><span id='gch_number58'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/131.jpg' align='left'> -->
-　<b><span id='name_59'>毛布</span></b><br>　<b><span id='en_59'>3000</span>円</b><br>災害備蓄用(140×200cm)</td>
-<td><button id='up_59' class='up_class'>▲</button><br>
-<button id='down_59' class='down_class'>▼</button></td>
-<td><span id='gch_number59'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/132.jpg' align='left'> -->
-　<b><span id='name_60'>布団セット</span></b><br>　<b><span id='en_60'>8000</span>円</b><br>布団4点セット</td>
-<td><button id='up_60' class='up_class'>▲</button><br>
-<button id='down_60' class='down_class'>▼</button></td>
-<td><span id='gch_number60'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/130.jpg' align='left'> -->
-　<b><span id='name_61'>ほうき、ちり取り</span></b><br>　<b><span id='en_61'>1000</span>円</b><br>組み合わせて収納可能</td>
-<td><button id='up_61' class='up_class'>▲</button><br>
-<button id='down_61' class='down_class'>▼</button></td>
-<td><span id='gch_number61'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/123.jpg' align='left'> -->
-　<b><span id='name_62'>ティシュペーパー</span></b><br>　<b><span id='en_62'>100</span>円</b><br>肌触りが良いです</td>
-<td><button id='up_62' class='up_class'>▲</button><br>
-<button id='down_62' class='down_class'>▼</button></td>
-<td><span id='gch_number62'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/129.jpg' align='left'> -->
-　<b><span id='name_63'>懐中電灯</span></b><br>　<b><span id='en_63'>400</span>円</b><br>単一電池使用</td>
-<td><button id='up_63' class='up_class'>▲</button><br>
-<button id='down_63' class='down_class'>▼</button></td>
-<td><span id='gch_number63'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/124.jpg' align='left'> -->
-　<b><span id='name_64'>トイレットペーパー</span></b><br>　<b><span id='en_64'>50</span>円</b><br>2枚重</td>
-<td><button id='up_64' class='up_class'>▲</button><br>
-<button id='down_64' class='down_class'>▼</button></td>
-<td><span id='gch_number64'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/127.jpg' align='left'> -->
-　<b><span id='name_65'>救急セット</span></b><br>　<b><span id='en_65'>3000</span>円</b><br>包帯、ピンセット、消毒液</td>
-<td><button id='up_65' class='up_class'>▲</button><br>
-<button id='down_65' class='down_class'>▼</button></td>
-<td><span id='gch_number65'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/125.jpg' align='left'> -->
-　<b><span id='name_66'>食品用ラップ(20m)</span></b><br>　<b><span id='en_66'>100</span>円</b><br>ピタッと張り付く</td>
-<td><button id='up_66' class='up_class'>▲</button><br>
-<button id='down_66' class='down_class'>▼</button></td>
-<td><span id='gch_number66'>0</span>個</td></tr>
-</table>
-</div>
-<div id='id' class='goods_class'>
-<table border='0' width='100%'>
-<tr><td><!-- <img src='image/126.jpg' align='left'> -->
-　<b><span id='name_67'>不織布マスク(10枚)</span></b><br>　<b><span id='en_67'>300</span>円</b><br>不織布2層</td>
-<td><button id='up_67' class='up_class'>▲</button><br>
-<button id='down_67' class='down_class'>▼</button></td>
-<td><span id='gch_number67'>0</span>個</td></tr>
-</table>
-</div>
-</div>
+
+<h1>高度な脱出ゲーム</h1>
+<p id="message">隠された鍵を探して脱出しよう！</p>
+<p id="timer">残り時間: <span id="time">60</span> 秒</p>
+<div class="game-container" id="stage">
+    <!-- ステージ1のアイテム -->
+</div>
+<div>
+    <button onclick="restartGame()">リスタート</button>
+    <button onclick="showHint()">ヒントを見る</button>
+</div>
+
+<audio id="find-sound" src="https://www.soundjay.com/button/beep-07.mp3"></audio>
+<audio id="door-sound" src="https://www.soundjay.com/button/beep-06.mp3"></audio>
+
 <script>
-var UpButton1 = document.getElementById('up_1');
-up_1.addEventListener('click', function(){
-var n = document.getElementById('gch_number1').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number1').textContent = n;
-});
-
-var UpButton2 = document.getElementById('up_2');
-up_2.addEventListener('click', function(){
-var n = document.getElementById('gch_number2').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number2').textContent = n;
-});
-
-var UpButton3 = document.getElementById('up_3');
-up_3.addEventListener('click', function(){
-var n = document.getElementById('gch_number3').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number3').textContent = n;
-});
-
-var UpButton4 = document.getElementById('up_4');
-up_4.addEventListener('click', function(){
-var n = document.getElementById('gch_number4').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number4').textContent = n;
-});
-
-var UpButton5 = document.getElementById('up_5');
-up_5.addEventListener('click', function(){
-var n = document.getElementById('gch_number5').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number5').textContent = n;
-});
-
-var UpButton6 = document.getElementById('up_6');
-up_6.addEventListener('click', function(){
-var n = document.getElementById('gch_number6').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number6').textContent = n;
-});
-
-var UpButton7 = document.getElementById('up_7');
-up_7.addEventListener('click', function(){
-var n = document.getElementById('gch_number7').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number7').textContent = n;
-});
-
-var UpButton8 = document.getElementById('up_8');
-up_8.addEventListener('click', function(){
-var n = document.getElementById('gch_number8').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number8').textContent = n;
-});
-
-var UpButton9 = document.getElementById('up_9');
-up_9.addEventListener('click', function(){
-var n = document.getElementById('gch_number9').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number9').textContent = n;
-});
-
-var UpButton10 = document.getElementById('up_10');
-up_10.addEventListener('click', function(){
-var n = document.getElementById('gch_number10').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number10').textContent = n;
-});
-
-var UpButton11 = document.getElementById('up_11');
-up_11.addEventListener('click', function(){
-var n = document.getElementById('gch_number11').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number11').textContent = n;
-});
-
-var UpButton12 = document.getElementById('up_12');
-up_12.addEventListener('click', function(){
-var n = document.getElementById('gch_number12').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number12').textContent = n;
-});
-
-var UpButton13 = document.getElementById('up_13');
-up_13.addEventListener('click', function(){
-var n = document.getElementById('gch_number13').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number13').textContent = n;
-});
-
-var UpButton14 = document.getElementById('up_14');
-up_14.addEventListener('click', function(){
-var n = document.getElementById('gch_number14').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number14').textContent = n;
-});
-
-var UpButton15 = document.getElementById('up_15');
-up_15.addEventListener('click', function(){
-var n = document.getElementById('gch_number15').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number15').textContent = n;
-});
-
-var UpButton16 = document.getElementById('up_16');
-up_16.addEventListener('click', function(){
-var n = document.getElementById('gch_number16').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number16').textContent = n;
-});
-
-var UpButton17 = document.getElementById('up_17');
-up_17.addEventListener('click', function(){
-var n = document.getElementById('gch_number17').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number17').textContent = n;
-});
-
-var UpButton18 = document.getElementById('up_18');
-up_18.addEventListener('click', function(){
-var n = document.getElementById('gch_number18').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number18').textContent = n;
-});
-
-var UpButton19 = document.getElementById('up_19');
-up_19.addEventListener('click', function(){
-var n = document.getElementById('gch_number19').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number19').textContent = n;
-});
-
-var UpButton20 = document.getElementById('up_20');
-up_20.addEventListener('click', function(){
-var n = document.getElementById('gch_number20').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number20').textContent = n;
-});
-
-var UpButton21 = document.getElementById('up_21');
-up_21.addEventListener('click', function(){
-var n = document.getElementById('gch_number21').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number21').textContent = n;
-});
-
-var UpButton22 = document.getElementById('up_22');
-up_22.addEventListener('click', function(){
-var n = document.getElementById('gch_number22').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number22').textContent = n;
-});
-
-var UpButton23 = document.getElementById('up_23');
-up_23.addEventListener('click', function(){
-var n = document.getElementById('gch_number23').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number23').textContent = n;
-});
-
-var UpButton24 = document.getElementById('up_24');
-up_24.addEventListener('click', function(){
-var n = document.getElementById('gch_number24').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number24').textContent = n;
-});
-
-var UpButton25 = document.getElementById('up_25');
-up_25.addEventListener('click', function(){
-var n = document.getElementById('gch_number25').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number25').textContent = n;
-});
-
-var UpButton26 = document.getElementById('up_26');
-up_26.addEventListener('click', function(){
-var n = document.getElementById('gch_number26').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number26').textContent = n;
-});
-
-var UpButton27 = document.getElementById('up_27');
-up_27.addEventListener('click', function(){
-var n = document.getElementById('gch_number27').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number27').textContent = n;
-});
-
-var UpButton28 = document.getElementById('up_28');
-up_28.addEventListener('click', function(){
-var n = document.getElementById('gch_number28').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number28').textContent = n;
-});
-
-var UpButton29 = document.getElementById('up_29');
-up_29.addEventListener('click', function(){
-var n = document.getElementById('gch_number29').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number29').textContent = n;
-});
-
-var UpButton30 = document.getElementById('up_30');
-up_30.addEventListener('click', function(){
-var n = document.getElementById('gch_number30').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number30').textContent = n;
-});
-
-var UpButton31 = document.getElementById('up_31');
-up_31.addEventListener('click', function(){
-var n = document.getElementById('gch_number31').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number31').textContent = n;
-});
-
-var UpButton32 = document.getElementById('up_32');
-up_32.addEventListener('click', function(){
-var n = document.getElementById('gch_number32').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number32').textContent = n;
-});
-
-var UpButton33 = document.getElementById('up_33');
-up_33.addEventListener('click', function(){
-var n = document.getElementById('gch_number33').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number33').textContent = n;
-});
-
-var UpButton34 = document.getElementById('up_34');
-up_34.addEventListener('click', function(){
-var n = document.getElementById('gch_number34').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number34').textContent = n;
-});
-
-var UpButton35 = document.getElementById('up_35');
-up_35.addEventListener('click', function(){
-var n = document.getElementById('gch_number35').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number35').textContent = n;
-});
-
-var UpButton36 = document.getElementById('up_36');
-up_36.addEventListener('click', function(){
-var n = document.getElementById('gch_number36').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number36').textContent = n;
-});
-
-var UpButton37 = document.getElementById('up_37');
-up_37.addEventListener('click', function(){
-var n = document.getElementById('gch_number37').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number37').textContent = n;
-});
-
-var UpButton38 = document.getElementById('up_38');
-up_38.addEventListener('click', function(){
-var n = document.getElementById('gch_number38').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number38').textContent = n;
-});
-
-var UpButton39 = document.getElementById('up_39');
-up_39.addEventListener('click', function(){
-var n = document.getElementById('gch_number39').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number39').textContent = n;
-});
-
-var UpButton40 = document.getElementById('up_40');
-up_40.addEventListener('click', function(){
-var n = document.getElementById('gch_number40').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number40').textContent = n;
-});
-
-var UpButton41 = document.getElementById('up_41');
-up_41.addEventListener('click', function(){
-var n = document.getElementById('gch_number41').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number41').textContent = n;
-});
-
-var UpButton42 = document.getElementById('up_42');
-up_42.addEventListener('click', function(){
-var n = document.getElementById('gch_number42').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number42').textContent = n;
-});
-
-var UpButton43 = document.getElementById('up_43');
-up_43.addEventListener('click', function(){
-var n = document.getElementById('gch_number43').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number43').textContent = n;
-});
-
-var UpButton44 = document.getElementById('up_44');
-up_44.addEventListener('click', function(){
-var n = document.getElementById('gch_number44').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number44').textContent = n;
-});
-
-var UpButton45 = document.getElementById('up_45');
-up_45.addEventListener('click', function(){
-var n = document.getElementById('gch_number45').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number45').textContent = n;
-});
-
-var UpButton46 = document.getElementById('up_46');
-up_46.addEventListener('click', function(){
-var n = document.getElementById('gch_number46').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number46').textContent = n;
-});
-
-var UpButton47 = document.getElementById('up_47');
-up_47.addEventListener('click', function(){
-var n = document.getElementById('gch_number47').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number47').textContent = n;
-});
-
-var UpButton48 = document.getElementById('up_48');
-up_48.addEventListener('click', function(){
-var n = document.getElementById('gch_number48').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number48').textContent = n;
-});
-
-var UpButton49 = document.getElementById('up_49');
-up_49.addEventListener('click', function(){
-var n = document.getElementById('gch_number49').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number49').textContent = n;
-});
-
-var UpButton50 = document.getElementById('up_50');
-up_50.addEventListener('click', function(){
-var n = document.getElementById('gch_number50').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number50').textContent = n;
-});
-
-var UpButton51 = document.getElementById('up_51');
-up_51.addEventListener('click', function(){
-var n = document.getElementById('gch_number51').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number51').textContent = n;
-});
-
-var UpButton52 = document.getElementById('up_52');
-up_52.addEventListener('click', function(){
-var n = document.getElementById('gch_number52').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number52').textContent = n;
-});
-
-var UpButton53 = document.getElementById('up_53');
-up_53.addEventListener('click', function(){
-var n = document.getElementById('gch_number53').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number53').textContent = n;
-});
-
-var UpButton54 = document.getElementById('up_54');
-up_54.addEventListener('click', function(){
-var n = document.getElementById('gch_number54').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number54').textContent = n;
-});
-
-var UpButton55 = document.getElementById('up_55');
-up_55.addEventListener('click', function(){
-var n = document.getElementById('gch_number55').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number55').textContent = n;
-});
-
-var UpButton56 = document.getElementById('up_56');
-up_56.addEventListener('click', function(){
-var n = document.getElementById('gch_number56').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number56').textContent = n;
-});
-
-var UpButton57 = document.getElementById('up_57');
-up_57.addEventListener('click', function(){
-var n = document.getElementById('gch_number57').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number57').textContent = n;
-});
-
-var UpButton58 = document.getElementById('up_58');
-up_58.addEventListener('click', function(){
-var n = document.getElementById('gch_number58').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number58').textContent = n;
-});
-
-var UpButton59 = document.getElementById('up_59');
-up_59.addEventListener('click', function(){
-var n = document.getElementById('gch_number59').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number59').textContent = n;
-});
-
-var UpButton60 = document.getElementById('up_60');
-up_60.addEventListener('click', function(){
-var n = document.getElementById('gch_number60').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number60').textContent = n;
-});
-
-var UpButton61 = document.getElementById('up_61');
-up_61.addEventListener('click', function(){
-var n = document.getElementById('gch_number61').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number61').textContent = n;
-});
-
-var UpButton62 = document.getElementById('up_62');
-up_62.addEventListener('click', function(){
-var n = document.getElementById('gch_number62').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number62').textContent = n;
-});
-
-var UpButton63 = document.getElementById('up_63');
-up_63.addEventListener('click', function(){
-var n = document.getElementById('gch_number63').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number63').textContent = n;
-});
-
-var UpButton64 = document.getElementById('up_64');
-up_64.addEventListener('click', function(){
-var n = document.getElementById('gch_number64').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number64').textContent = n;
-});
-
-var UpButton65 = document.getElementById('up_65');
-up_65.addEventListener('click', function(){
-var n = document.getElementById('gch_number65').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number65').textContent = n;
-});
-
-var UpButton66 = document.getElementById('up_66');
-up_66.addEventListener('click', function(){
-var n = document.getElementById('gch_number66').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number66').textContent = n;
-});
-
-var UpButton67 = document.getElementById('up_67');
-up_67.addEventListener('click', function(){
-var n = document.getElementById('gch_number67').textContent ;
-n = Number(n) + 1;
-document.getElementById('gch_number67').textContent = n;
-});
-
+    const stages = [
+        {
+            items: [
+                { id: "desk", text: "机", action: "ここには何もない。" },
+                { id: "drawer", text: "引き出し", action: "鍵が隠れている！", isKey: true },
+                { id: "lamp", text: "ランプ", action: "何も見つからない。" },
+                { id: "door", text: "扉", action: "鍵が必要だ。" }
+            ],
+            hint: "鍵は引き出しにあるようだ。"
+        },
+        {
+            items: [
+                { id: "bookshelf", text: "本棚", action: "本の間に鍵が隠れている！", isKey: true },
+                { id: "bed", text: "ベッド", action: "ここには何もない。" },
+                { id: "painting", text: "絵画", action: "特に変わったところはない。" },
+                { id: "door", text: "扉", action: "鍵が必要だ。" }
+            ],
+            hint: "本棚をよく探してみよう。"
+        }
+    ];
+    let currentStage = 0;
+    let hasKey = false;
+    let timer = 60;
+    let timerInterval;
+
+    function startGame() {
+        loadStage(currentStage);
+        startTimer();
+    }
+
+    function loadStage(stageIndex) {
+        const stage = stages[stageIndex];
+        const container = document.getElementById("stage");
+        container.innerHTML = "";
+
+        stage.items.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "item" + (item.isKey ? " hidden" : "");
+            div.textContent = item.text;
+            div.dataset.id = item.id;
+
+            div.addEventListener("click", () => handleItemClick(item));
+            container.appendChild(div);
+        });
+
+        showMessage("ステージ " + (stageIndex + 1) + ": 鍵を探して脱出しよう！");
+    }
+
+    function handleItemClick(item) {
+        const sound = item.isKey ? "find-sound" : "door-sound";
+
+        if (item.isKey) {
+            document.querySelector(`[data-id="${item.id}"]`).classList.remove("hidden");
+            hasKey = true;
+            playSound(sound);
+            showMessage("鍵を見つけた！扉を開けよう！");
+        } else if (item.id === "door") {
+            if (hasKey) {
+                playSound(sound);
+                nextStage();
+            } else {
+                showMessage("鍵が必要だ。どこかに隠れているはず！");
+            }
+        } else {
+            showMessage(item.action);
+        }
+    }
+
+    function nextStage() {
+        hasKey = false;
+        currentStage++;
+
+        if (currentStage >= stages.length) {
+            clearInterval(timerInterval);
+            showMessage("全ステージクリア！脱出成功！");
+            document.getElementById("stage").innerHTML = "";
+        } else {
+            loadStage(currentStage);
+        }
+    }
+
+    function restartGame() {
+        hasKey = false;
+        currentStage = 0;
+        timer = 60;
+        clearInterval(timerInterval);
+        startGame();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timer--;
+            document.getElementById("time").textContent = timer;
+
+            if (timer <= 0) {
+                clearInterval(timerInterval);
+                showMessage("時間切れ！ゲームオーバー！");
+                document.getElementById("stage").innerHTML = "";
+            }
+        }, 1000);
+    }
+
+    function showHint() {
+        const hint = stages[currentStage].hint;
+        showMessage("ヒント: " + hint);
+    }
+
+    function showMessage(message) {
+        document.getElementById("message").textContent = message;
+    }
+
+    function playSound(id) {
+        const audio = document.getElementById(id);
+        audio.currentTime = 0;
+        audio.play();
+    }
+
+    // ゲーム開始
+    startGame();
 </script>
-<script>
-var DownButton1 = document.getElementById('down_1');
-down_1.addEventListener('click', function(){
-var n = document.getElementById('gch_number1').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number1').textContent = n;
-};
-});
 
-var DownButton2 = document.getElementById('down_2');
-down_2.addEventListener('click', function(){
-var n = document.getElementById('gch_number2').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number2').textContent = n;
-};
-});
-
-var DownButton3 = document.getElementById('down_3');
-down_3.addEventListener('click', function(){
-var n = document.getElementById('gch_number3').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number3').textContent = n;
-};
-});
-
-var DownButton4 = document.getElementById('down_4');
-down_4.addEventListener('click', function(){
-var n = document.getElementById('gch_number4').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number4').textContent = n;
-};
-});
-
-var DownButton5 = document.getElementById('down_5');
-down_5.addEventListener('click', function(){
-var n = document.getElementById('gch_number5').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number5').textContent = n;
-};
-});
-
-var DownButton6 = document.getElementById('down_6');
-down_6.addEventListener('click', function(){
-var n = document.getElementById('gch_number6').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number6').textContent = n;
-};
-});
-
-var DownButton7 = document.getElementById('down_7');
-down_7.addEventListener('click', function(){
-var n = document.getElementById('gch_number7').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number7').textContent = n;
-};
-});
-
-var DownButton8 = document.getElementById('down_8');
-down_8.addEventListener('click', function(){
-var n = document.getElementById('gch_number8').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number8').textContent = n;
-};
-});
-
-var DownButton9 = document.getElementById('down_9');
-down_9.addEventListener('click', function(){
-var n = document.getElementById('gch_number9').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number9').textContent = n;
-};
-});
-
-var DownButton10 = document.getElementById('down_10');
-down_10.addEventListener('click', function(){
-var n = document.getElementById('gch_number10').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number10').textContent = n;
-};
-});
-
-var DownButton11 = document.getElementById('down_11');
-down_11.addEventListener('click', function(){
-var n = document.getElementById('gch_number11').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number11').textContent = n;
-};
-});
-
-var DownButton12 = document.getElementById('down_12');
-down_12.addEventListener('click', function(){
-var n = document.getElementById('gch_number12').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number12').textContent = n;
-};
-});
-
-var DownButton13 = document.getElementById('down_13');
-down_13.addEventListener('click', function(){
-var n = document.getElementById('gch_number13').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number13').textContent = n;
-};
-});
-
-var DownButton14 = document.getElementById('down_14');
-down_14.addEventListener('click', function(){
-var n = document.getElementById('gch_number14').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number14').textContent = n;
-};
-});
-
-var DownButton15 = document.getElementById('down_15');
-down_15.addEventListener('click', function(){
-var n = document.getElementById('gch_number15').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number15').textContent = n;
-};
-});
-
-var DownButton16 = document.getElementById('down_16');
-down_16.addEventListener('click', function(){
-var n = document.getElementById('gch_number16').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number16').textContent = n;
-};
-});
-
-var DownButton17 = document.getElementById('down_17');
-down_17.addEventListener('click', function(){
-var n = document.getElementById('gch_number17').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number17').textContent = n;
-};
-});
-
-var DownButton18 = document.getElementById('down_18');
-down_18.addEventListener('click', function(){
-var n = document.getElementById('gch_number18').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number18').textContent = n;
-};
-});
-
-var DownButton19 = document.getElementById('down_19');
-down_19.addEventListener('click', function(){
-var n = document.getElementById('gch_number19').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number19').textContent = n;
-};
-});
-
-var DownButton20 = document.getElementById('down_20');
-down_20.addEventListener('click', function(){
-var n = document.getElementById('gch_number20').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number20').textContent = n;
-};
-});
-
-var DownButton21 = document.getElementById('down_21');
-down_21.addEventListener('click', function(){
-var n = document.getElementById('gch_number21').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number21').textContent = n;
-};
-});
-
-var DownButton22 = document.getElementById('down_22');
-down_22.addEventListener('click', function(){
-var n = document.getElementById('gch_number22').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number22').textContent = n;
-};
-});
-
-var DownButton23 = document.getElementById('down_23');
-down_23.addEventListener('click', function(){
-var n = document.getElementById('gch_number23').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number23').textContent = n;
-};
-});
-
-var DownButton24 = document.getElementById('down_24');
-down_24.addEventListener('click', function(){
-var n = document.getElementById('gch_number24').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number24').textContent = n;
-};
-});
-
-var DownButton25 = document.getElementById('down_25');
-down_25.addEventListener('click', function(){
-var n = document.getElementById('gch_number25').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number25').textContent = n;
-};
-});
-
-var DownButton26 = document.getElementById('down_26');
-down_26.addEventListener('click', function(){
-var n = document.getElementById('gch_number26').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number26').textContent = n;
-};
-});
-
-var DownButton27 = document.getElementById('down_27');
-down_27.addEventListener('click', function(){
-var n = document.getElementById('gch_number27').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number27').textContent = n;
-};
-});
-
-var DownButton28 = document.getElementById('down_28');
-down_28.addEventListener('click', function(){
-var n = document.getElementById('gch_number28').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number28').textContent = n;
-};
-});
-
-var DownButton29 = document.getElementById('down_29');
-down_29.addEventListener('click', function(){
-var n = document.getElementById('gch_number29').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number29').textContent = n;
-};
-});
-
-var DownButton30 = document.getElementById('down_30');
-down_30.addEventListener('click', function(){
-var n = document.getElementById('gch_number30').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number30').textContent = n;
-};
-});
-
-var DownButton31 = document.getElementById('down_31');
-down_31.addEventListener('click', function(){
-var n = document.getElementById('gch_number31').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number31').textContent = n;
-};
-});
-
-var DownButton32 = document.getElementById('down_32');
-down_32.addEventListener('click', function(){
-var n = document.getElementById('gch_number32').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number32').textContent = n;
-};
-});
-
-var DownButton33 = document.getElementById('down_33');
-down_33.addEventListener('click', function(){
-var n = document.getElementById('gch_number33').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number33').textContent = n;
-};
-});
-
-var DownButton34 = document.getElementById('down_34');
-down_34.addEventListener('click', function(){
-var n = document.getElementById('gch_number34').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number34').textContent = n;
-};
-});
-
-var DownButton35 = document.getElementById('down_35');
-down_35.addEventListener('click', function(){
-var n = document.getElementById('gch_number35').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number35').textContent = n;
-};
-});
-
-var DownButton36 = document.getElementById('down_36');
-down_36.addEventListener('click', function(){
-var n = document.getElementById('gch_number36').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number36').textContent = n;
-};
-});
-
-var DownButton37 = document.getElementById('down_37');
-down_37.addEventListener('click', function(){
-var n = document.getElementById('gch_number37').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number37').textContent = n;
-};
-});
-
-var DownButton38 = document.getElementById('down_38');
-down_38.addEventListener('click', function(){
-var n = document.getElementById('gch_number38').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number38').textContent = n;
-};
-});
-
-var DownButton39 = document.getElementById('down_39');
-down_39.addEventListener('click', function(){
-var n = document.getElementById('gch_number39').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number39').textContent = n;
-};
-});
-
-var DownButton40 = document.getElementById('down_40');
-down_40.addEventListener('click', function(){
-var n = document.getElementById('gch_number40').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number40').textContent = n;
-};
-});
-
-var DownButton41 = document.getElementById('down_41');
-down_41.addEventListener('click', function(){
-var n = document.getElementById('gch_number41').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number41').textContent = n;
-};
-});
-
-var DownButton42 = document.getElementById('down_42');
-down_42.addEventListener('click', function(){
-var n = document.getElementById('gch_number42').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number42').textContent = n;
-};
-});
-
-var DownButton43 = document.getElementById('down_43');
-down_43.addEventListener('click', function(){
-var n = document.getElementById('gch_number43').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number43').textContent = n;
-};
-});
-
-var DownButton44 = document.getElementById('down_44');
-down_44.addEventListener('click', function(){
-var n = document.getElementById('gch_number44').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number44').textContent = n;
-};
-});
-
-var DownButton45 = document.getElementById('down_45');
-down_45.addEventListener('click', function(){
-var n = document.getElementById('gch_number45').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number45').textContent = n;
-};
-});
-
-var DownButton46 = document.getElementById('down_46');
-down_46.addEventListener('click', function(){
-var n = document.getElementById('gch_number46').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number46').textContent = n;
-};
-});
-
-var DownButton47 = document.getElementById('down_47');
-down_47.addEventListener('click', function(){
-var n = document.getElementById('gch_number47').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number47').textContent = n;
-};
-});
-
-var DownButton48 = document.getElementById('down_48');
-down_48.addEventListener('click', function(){
-var n = document.getElementById('gch_number48').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number48').textContent = n;
-};
-});
-
-var DownButton49 = document.getElementById('down_49');
-down_49.addEventListener('click', function(){
-var n = document.getElementById('gch_number49').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number49').textContent = n;
-};
-});
-
-var DownButton50 = document.getElementById('down_50');
-down_50.addEventListener('click', function(){
-var n = document.getElementById('gch_number50').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number50').textContent = n;
-};
-});
-
-var DownButton51 = document.getElementById('down_51');
-down_51.addEventListener('click', function(){
-var n = document.getElementById('gch_number51').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number51').textContent = n;
-};
-});
-
-var DownButton52 = document.getElementById('down_52');
-down_52.addEventListener('click', function(){
-var n = document.getElementById('gch_number52').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number52').textContent = n;
-};
-});
-
-var DownButton53 = document.getElementById('down_53');
-down_53.addEventListener('click', function(){
-var n = document.getElementById('gch_number53').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number53').textContent = n;
-};
-});
-
-var DownButton54 = document.getElementById('down_54');
-down_54.addEventListener('click', function(){
-var n = document.getElementById('gch_number54').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number54').textContent = n;
-};
-});
-
-var DownButton55 = document.getElementById('down_55');
-down_55.addEventListener('click', function(){
-var n = document.getElementById('gch_number55').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number55').textContent = n;
-};
-});
-
-var DownButton56 = document.getElementById('down_56');
-down_56.addEventListener('click', function(){
-var n = document.getElementById('gch_number56').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number56').textContent = n;
-};
-});
-
-var DownButton57 = document.getElementById('down_57');
-down_57.addEventListener('click', function(){
-var n = document.getElementById('gch_number57').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number57').textContent = n;
-};
-});
-
-var DownButton58 = document.getElementById('down_58');
-down_58.addEventListener('click', function(){
-var n = document.getElementById('gch_number58').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number58').textContent = n;
-};
-});
-
-var DownButton59 = document.getElementById('down_59');
-down_59.addEventListener('click', function(){
-var n = document.getElementById('gch_number59').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number59').textContent = n;
-};
-});
-
-var DownButton60 = document.getElementById('down_60');
-down_60.addEventListener('click', function(){
-var n = document.getElementById('gch_number60').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number60').textContent = n;
-};
-});
-
-var DownButton61 = document.getElementById('down_61');
-down_61.addEventListener('click', function(){
-var n = document.getElementById('gch_number61').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number61').textContent = n;
-};
-});
-
-var DownButton62 = document.getElementById('down_62');
-down_62.addEventListener('click', function(){
-var n = document.getElementById('gch_number62').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number62').textContent = n;
-};
-});
-
-var DownButton63 = document.getElementById('down_63');
-down_63.addEventListener('click', function(){
-var n = document.getElementById('gch_number63').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number63').textContent = n;
-};
-});
-
-var DownButton64 = document.getElementById('down_64');
-down_64.addEventListener('click', function(){
-var n = document.getElementById('gch_number64').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number64').textContent = n;
-};
-});
-
-var DownButton65 = document.getElementById('down_65');
-down_65.addEventListener('click', function(){
-var n = document.getElementById('gch_number65').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number65').textContent = n;
-};
-});
-
-var DownButton66 = document.getElementById('down_66');
-down_66.addEventListener('click', function(){
-var n = document.getElementById('gch_number66').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number66').textContent = n;
-};
-});
-
-var DownButton67 = document.getElementById('down_67');
-down_67.addEventListener('click', function(){
-var n = document.getElementById('gch_number67').textContent ;
-if(n > 0 ){
-n = Number(n) - 1;
-document.getElementById('gch_number67').textContent = n;
-};
-});
-
-</script>
 </body>
 </html>
