@@ -3,192 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>総合エンターテイメントサイト</title>
+    <title>動画配信サイト</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #1e1e1e;
-            color: white;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            color: #ffcc00;
-            margin: 20px;
-        }
-        nav {
-            display: flex;
-            justify-content: center;
-            background-color: #222;
-            padding: 10px;
-        }
-        nav a {
-            margin: 0 15px;
-            color: #ffcc00;
-            text-decoration: none;
-            font-size: 18px;
-        }
-        nav a:hover {
-            color: #ffaa00;
-        }
-        .section {
-            display: none;
-            padding: 20px;
-        }
-        .section.active {
-            display: block;
-        }
-        button {
-            background-color: #ffcc00;
-            color: #1e1e1e;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px;
-        }
-        button:hover {
-            background-color: #ffaa00;
-        }
-        input[type="text"], textarea {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #444;
-            border-radius: 5px;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #videoContainer { margin-top: 20px; }
     </style>
 </head>
 <body>
-
-<h1>総合エンターテイメントサイト</h1>
-<nav>
-    <a href="#" onclick="showSection('search')">検索</a>
-    <a href="#" onclick="showSection('music')">音楽</a>
-    <a href="#" onclick="showSection('escape')">脱出ゲーム</a>
-    <a href="#" onclick="showSection('gacha')">ガチャ</a>
-    <a href="#" onclick="showSection('daihugo')">大富豪</a>
-    <a href="#" onclick="showSection('chat')">チャット</a>
-</nav>
-
-<!-- 検索セクション -->
-<div id="search" class="section">
-    <h2>検索サイト</h2>
-    <input type="text" id="searchQuery" placeholder="検索したいキーワードを入力">
-    <button onclick="performSearch()">検索</button>
-    <div id="searchResults"></div>
-</div>
-
-<!-- 音楽セクション -->
-<div id="music" class="section">
-    <h2>音楽作成・再生</h2>
-    <p>ここでオリジナルの音楽を作成できます！</p>
-    <button onclick="playSound('C')">ド (C)</button>
-    <button onclick="playSound('D')">レ (D)</button>
-    <button onclick="playSound('E')">ミ (E)</button>
-    <button onclick="playSound('F')">ファ (F)</button>
-    <button onclick="playSound('G')">ソ (G)</button>
-    <button onclick="playSound('A')">ラ (A)</button>
-    <button onclick="playSound('B')">シ (B)</button>
-    <p id="musicMessage"></p>
-</div>
-
-<!-- 脱出ゲームセクション -->
-<div id="escape" class="section">
-    <h2>脱出ゲーム</h2>
-    <p id="escapeMessage">隠された鍵を見つけて脱出しよう！</p>
-    <div>
-        <button onclick="escapeAction('desk')">机を調べる</button>
-        <button onclick="escapeAction('drawer')">引き出しを調べる</button>
-        <button onclick="escapeAction('door')">扉を開ける</button>
+    <h1>動画配信サイト</h1>
+    <input type="file" id="videoUpload" accept="video/*">
+    <button id="shareButton">共有リンクを作成</button>
+    <p id="shareLink"></p>
+    <div id="videoContainer">
+        <video id="videoPlayer" controls width="640"></video>
     </div>
-</div>
 
-<!-- ガチャセクション -->
-<div id="gacha" class="section">
-    <h2>ガチャ</h2>
-    <button onclick="performGacha()">ガチャを回す</button>
-    <p id="gachaResult"></p>
-</div>
+    <script>
+        let uploadedFile;
 
-<!-- 大富豪セクション -->
-<div id="daihugo" class="section">
-    <h2>大富豪</h2>
-    <p>CPU対戦をお楽しみください！(簡易版)</p>
-    <button onclick="startDaihugo()">ゲーム開始</button>
-    <p id="daihugoResult"></p>
-</div>
-
-<!-- チャットアプリセクション -->
-<div id="chat" class="section">
-    <h2>チャットアプリ</h2>
-    <textarea id="chatInput" placeholder="メッセージを入力"></textarea>
-    <button onclick="sendMessage()">送信</button>
-    <div id="chatMessages"></div>
-</div>
-
-<script>
-    // 現在表示中のセクション
-    function showSection(id) {
-        document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
-
-    // 検索機能
-    function performSearch() {
-        const query = document.getElementById('searchQuery').value;
-        document.getElementById('searchResults').innerHTML = `「${query}」の検索結果を表示します。（仮）`;
-    }
-
-    // 音楽作成機能
-    function playSound(note) {
-        document.getElementById('musicMessage').textContent = `音符「${note}」が再生されました。（仮）`;
-    }
-
-    // 脱出ゲーム機能
-    let hasKey = false;
-    function escapeAction(action) {
-        if (action === 'drawer') {
-            hasKey = true;
-            document.getElementById('escapeMessage').textContent = '鍵を見つけた！扉を開けよう！';
-        } else if (action === 'door') {
-            if (hasKey) {
-                document.getElementById('escapeMessage').textContent = '扉を開けて脱出成功！';
-            } else {
-                document.getElementById('escapeMessage').textContent = '鍵が必要だ！';
+        document.getElementById('videoUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                uploadedFile = file;
+                const videoURL = URL.createObjectURL(file);
+                const videoPlayer = document.getElementById('videoPlayer');
+                videoPlayer.src = videoURL;
+                videoPlayer.play();
             }
-        } else {
-            document.getElementById('escapeMessage').textContent = 'ここには何もない。';
-        }
-    }
+        });
 
-    // ガチャ機能
-    function performGacha() {
-        const results = ['レア', 'ノーマル', 'スーパーレア', 'ウルトラレア'];
-        const result = results[Math.floor(Math.random() * results.length)];
-        document.getElementById('gachaResult').textContent = `ガチャ結果：${result}`;
-    }
-
-    // 大富豪機能
-    function startDaihugo() {
-        document.getElementById('daihugoResult').textContent = '大富豪機能は現在準備中です！';
-    }
-
-    // チャットアプリ機能
-    function sendMessage() {
-        const message = document.getElementById('chatInput').value;
-        const chatMessages = document.getElementById('chatMessages');
-        const newMessage = document.createElement('p');
-        newMessage.textContent = message;
-        chatMessages.appendChild(newMessage);
-        document.getElementById('chatInput').value = '';
-    }
-
-    // 初期表示
-    showSection('search');
-</script>
-
+        document.getElementById('shareButton').addEventListener('click', function() {
+            if (uploadedFile) {
+                const data = new FormData();
+                data.append('file', uploadedFile);
+                
+                fetch('https://yourserver.com/upload', { // 適切なサーバーURLに変更
+                    method: 'POST',
+                    body: data
+                })
+                .then(response => response.json())
+                .then(result => {
+                    const linkElement = document.getElementById('shareLink');
+                    linkElement.innerHTML = `<a href="${result.url}" target="_blank">動画を共有</a>`;
+                })
+                .catch(error => console.error('Error:', error));
+            } else {
+                alert('動画をアップロードしてください。');
+            }
+        });
+    </script>
 </body>
 </html>
