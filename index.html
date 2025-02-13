@@ -3,52 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>動画配信サイト</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        #videoContainer { margin-top: 20px; }
-    </style>
+    <title>動画アップロード＆ダウンロード</title>
 </head>
 <body>
-    <h1>動画配信サイト</h1>
-    <input type="file" id="videoUpload" accept="video/*">
-    <button id="shareButton">共有リンクを作成</button>
-    <p id="shareLink"></p>
-    <div id="videoContainer">
-        <video id="videoPlayer" controls width="640"></video>
-    </div>
+    <h2>動画アップロード＆ダウンロード</h2>
+    <input type="file" id="videoInput" accept="video/*">
+    <br><br>
+    <video id="videoPreview" controls style="max-width: 100%; display: none;"></video>
+    <br><br>
+    <a id="downloadLink" style="display: none;" download>動画をダウンロード</a>
 
     <script>
-        let uploadedFile;
-
-        document.getElementById('videoUpload').addEventListener('change', function(event) {
+        document.getElementById('videoInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
-                uploadedFile = file;
-                const videoURL = URL.createObjectURL(file);
-                const videoPlayer = document.getElementById('videoPlayer');
-                videoPlayer.src = videoURL;
-                videoPlayer.play();
-            }
-        });
-
-        document.getElementById('shareButton').addEventListener('click', function() {
-            if (uploadedFile) {
-                const data = new FormData();
-                data.append('file', uploadedFile);
+                const url = URL.createObjectURL(file);
+                const video = document.getElementById('videoPreview');
+                video.src = url;
+                video.style.display = 'block';
                 
-                fetch('https://yourserver.com/upload', { // 適切なサーバーURLに変更
-                    method: 'POST',
-                    body: data
-                })
-                .then(response => response.json())
-                .then(result => {
-                    const linkElement = document.getElementById('shareLink');
-                    linkElement.innerHTML = `<a href="${result.url}" target="_blank">動画を共有</a>`;
-                })
-                .catch(error => console.error('Error:', error));
-            } else {
-                alert('動画をアップロードしてください。');
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = url;
+                downloadLink.download = file.name;
+                downloadLink.style.display = 'block';
             }
         });
     </script>
