@@ -2,213 +2,68 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>画像・動画編集ツール</title>
+  <title>ゆっくり冷蔵庫パンチ！</title>
   <style>
     body {
-      font-family: sans-serif;
       text-align: center;
-      margin: 20px;
+      font-family: 'Arial';
+      background-color: #f0f0ff;
     }
-    canvas, video {
-      border: 1px solid #ccc;
-      margin-top: 10px;
-      max-width: 90%;
+    #gameArea {
+      margin-top: 50px;
     }
-    .controls {
-      margin-top: 15px;
+    #marisa {
+      width: 200px;
+      transition: transform 0.1s;
     }
-    .controls label {
-      display: inline-block;
-      margin: 5px;
+    #score {
+      font-size: 24px;
+      margin-top: 20px;
     }
-    .file-upload {
-      margin-bottom: 10px;
+    button {
+      padding: 10px 20px;
+      font-size: 20px;
     }
   </style>
 </head>
 <body>
-
-  <h1>画像・動画編集ツール</h1>
-
-  <div class="file-upload">
-    <input type="file" id="uploadImage" accept="image/*">
-    <input type="file" id="uploadVideo" accept="video/*">
+  <h1>ゆっくり冷蔵庫パンチ！</h1>
+  <div id="gameArea">
+    <img id="marisa" src="https://manjubox.net/materials/face/marisa.png" alt="魔理沙">
+    <div>
+      <button onclick="punch()">パンチ！</button>
+    </div>
+    <div id="score">パンチ数: 0</div>
   </div>
-
-  <video id="video" controls style="display:none;"></video><br>
-  <button onclick="captureFrame()">▶ フレームを編集</button><br><br>
-
-  <div class="controls">
-    <label>明るさ: <input type="range" id="brightness" min="0" max="200" value="100"></label>
-    <label>コントラスト: <input type="range" id="contrast" min="0" max="200" value="100"></label>
-    <label>フィルター:
-      <select id="filter">
-        <option value="none">なし</option>
-        <option value="grayscale">グレースケール</option>
-        <option value="sepia">セピア</option>
-      </select>
-    </label>
-    <br>
-    <button onclick="rotateImage()">画像を90°回転</button>
-    <button onclick="cropImage()">中央を切り抜き</button>
-    <button onclick="downloadImage()">画像をダウンロード</button>
-  </div>
-
-  <canvas id="canvas"></canvas>
 
   <script>
-    const uploadImage = document.getElementById('uploadImage');
-    const uploadVideo = document.getElementById('uploadVideo');
-    const brightnessSlider = document.getElementById('brightness');
-    const contrastSlider = document.getElementById('contrast');
-    const filterSelect = document.getElementById('filter');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const video = document.getElementById('video');
+    let score = 0;
+    const scoreDisplay = document.getElementById("score");
+    const marisa = document.getElementById("marisa");
 
-    let img = new Image();
-    let originalImage = null;
-    let currentAngle = 0;
+    function punch() {
+      score++;
+      scoreDisplay.textContent = "パンチ数: " + score;
 
-    // 画像読み込み
-    uploadImage.addEventListener('change', function() {
-      const file = uploadImage.files[0];
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        img.onload = function() {
-          drawToCanvas(img.width, img.height, () => {
-            ctx.drawImage(img, 0, 0);
-            originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            applyEffects();
-          });
-        };
-        img.src = e.target.result;
-      };
-      if (file) reader.readAsDataURL(file);
-    });
+      // アニメーションっぽく動かす
+      marisa.style.transform = "translateX(-10px)";
+      setTimeout(() => {
+        marisa.style.transform = "translateX(0)";
+      }, 100);
 
-    // 動画読み込み
-    uploadVideo.addEventListener('change', function() {
-      const file = uploadVideo.files[0];
-      const url = URL.createObjectURL(file);
-      video.src = url;
-      video.style.display = 'block';
-    });
-
-    // 動画フレームをキャンバスへ
-    function captureFrame() {
-      drawToCanvas(video.videoWidth, video.videoHeight, () => {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        applyEffects();
-      });
-    }
-
-    // 明るさ・コントラスト・フィルター
-    [brightnessSlider, contrastSlider, filterSelect].forEach(el => {
-      el.addEventListener('input', applyEffects);
-    });
-
-    function applyEffects() {
-      if (!originalImage) return;
-
-      const imageData = new ImageData(
-        new Uint8ClampedArray(originalImage.data),
-        originalImage.width,
-        originalImage.height
-      );
-
-      const brightness = brightnessSlider.value / 100;
-      const contrast = contrastSlider.value / 100;
-      const filter = filterSelect.value;
-
-      for (let i = 0; i < imageData.data.length; i += 4) {
-        let r = imageData.data[i];
-        let g = imageData.data[i + 1];
-        let b = imageData.data[i + 2];
-
-        // 明るさ
-        r *= brightness;
-        g *= brightness;
-        b *= brightness;
-
-        // コントラスト
-        r = (r - 128) * contrast + 128;
-        g = (g - 128) * contrast + 128;
-        b = (b - 128) * contrast + 128;
-
-        // フィルター
-        if (filter === "grayscale") {
-          const avg = (r + g + b) / 3;
-          r = g = b = avg;
-        } else if (filter === "sepia") {
-          const tr = 0.393*r + 0.769*g + 0.189*b;
-          const tg = 0.349*r + 0.686*g + 0.168*b;
-          const tb = 0.272*r + 0.534*g + 0.131*b;
-          r = tr;
-          g = tg;
-          b = tb;
-        }
-
-        imageData.data[i] = Math.min(255, Math.max(0, r));
-        imageData.data[i + 1] = Math.min(255, Math.max(0, g));
-        imageData.data[i + 2] = Math.min(255, Math.max(0, b));
+      // ネタ演出
+      if (score === 10) {
+        alert("魔理沙「ぐぬぬ……そろそろ出るか…」");
       }
-
-      ctx.putImageData(imageData, 0, 0);
-    }
-
-    function rotateImage() {
-      if (!originalImage) return;
-      currentAngle = (currentAngle + 90) % 360;
-
-      const tempCanvas = document.createElement('canvas');
-      const tempCtx = tempCanvas.getContext('2d');
-
-      if (currentAngle % 180 === 0) {
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = canvas.height;
-      } else {
-        tempCanvas.width = canvas.height;
-        tempCanvas.height = canvas.width;
+      if (score === 20) {
+        alert("魔理沙「わ、わかったから！出るから！」");
       }
-
-      tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
-      tempCtx.rotate(currentAngle * Math.PI / 180);
-      tempCtx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
-
-      canvas.width = tempCanvas.width;
-      canvas.height = tempCanvas.height;
-      ctx.drawImage(tempCanvas, 0, 0);
-      originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    }
-
-    function cropImage() {
-      if (!originalImage) return;
-      const cropWidth = canvas.width / 2;
-      const cropHeight = canvas.height / 2;
-      const x = (canvas.width - cropWidth) / 2;
-      const y = (canvas.height - cropHeight) / 2;
-      const cropped = ctx.getImageData(x, y, cropWidth, cropHeight);
-      canvas.width = cropWidth;
-      canvas.height = cropHeight;
-      ctx.putImageData(cropped, 0, 0);
-      originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    }
-
-    function downloadImage() {
-      const link = document.createElement('a');
-      link.download = 'edited-image.png';
-      link.href = canvas.toDataURL();
-      link.click();
-    }
-
-    function drawToCanvas(width, height, callback) {
-      canvas.width = width;
-      canvas.height = height;
-      callback();
+      if (score >= 30) {
+        alert("魔理沙脱出成功！（冷蔵庫の中身は空っぽだった）");
+        score = 0;
+        scoreDisplay.textContent = "パンチ数: " + score;
+      }
     }
   </script>
-
 </body>
 </html>
