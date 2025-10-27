@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>15パズル — 完全版（フル機能）</title>
 <style>
+/* CSSは以前と同じ（省略可） */
 :root{--bg:#f4f7fb;--card:#fff;--primary:#3b82f6;--muted:#6b7280;--accent:#ffb020;--tile:#60a5fa;--tile-text:#fff;--disabled:#cbd5e1}
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,var(--bg),#eef6ff);color:#0f172a;display:flex;align-items:flex-start;justify-content:center;min-height:100vh;padding:24px}
@@ -91,23 +92,4 @@ Stage
 <h3 style="margin:0 0 8px 0">遊び方</h3>
 <p style="margin:0;color:var(--muted)">クリック/タップまたは矢印キーでタイルを動かして、1〜15を順に並べよう。上2行が揃うと技が全回復。全て揃うとクリア表示！</p>
 <ul style="margin:8px 0 0 18px;color:var(--muted);font-size:13px">
-<li>🌀 シャッフル: 盤面をランダム化</li>
-<li>💨 スワップ: 任意の2タイルを入れ替え</li>
-<li>🔥 ライン回転: ランダムな1行を右へ1回転</li>
-<li>⚡ ヒント: 1つのタイルを正しい位置へ移動</li>
-</ul>
-</div>
-<div style="margin-top:12px" class="guide">
-<h3 style="margin:0 0 8px 0">開発メモ</h3>
-<p style="margin:0;color:var(--muted);font-size:13px">状態は gameState で一元管理。レンダリングは絶対配置＋transformで滑らかスライド。音ON/OFF可能。タイムアタック・ステージ選択・クリア演出搭載。</p>
-</div>
-</div>
-</main>
-</div>
-<div id="msg" class="msg" role="status" aria-live="polite"></div>
-<div id="clearPopup" class="clear-popup">🎉 クリア！おめでとう！</div>
-<script>
-/* ここにJavaScript: 全機能 (スキル、移動、スライド、タイマー、クリア演出) を含めて実装 */
-</script>
-</body>
-</html>
+<li>🌀 シャッフル: 盤面をランダム化</
