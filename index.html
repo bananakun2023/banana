@@ -1,95 +1,327 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>15パズル — 完全版（フル機能）</title>
+<meta charset="UTF-8">
+<title>Ultimate FPS Game</title>
 <style>
-/* CSSは以前と同じ（省略可） */
-:root{--bg:#f4f7fb;--card:#fff;--primary:#3b82f6;--muted:#6b7280;--accent:#ffb020;--tile:#60a5fa;--tile-text:#fff;--disabled:#cbd5e1}
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,var(--bg),#eef6ff);color:#0f172a;display:flex;align-items:flex-start;justify-content:center;min-height:100vh;padding:24px}
-.wrap{width:100%;max-width:980px;background:var(--card);border-radius:14px;box-shadow:0 8px 30px rgba(11,26,48,0.06);padding:18px}
-header{display:flex;gap:12px;align-items:center;justify-content:space-between}
-h1{font-size:18px;margin:0}
-.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.btn{background:var(--primary);color:white;border:none;padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
-.btn.secondary{background:transparent;color:var(--primary);border:1px solid rgba(59,130,246,0.12)}
-.btn.ghost{background:transparent;color:var(--muted);border:1px solid #eef2f7}
-.btn:disabled{background:var(--disabled);color:#fff;cursor:not-allowed;opacity:0.9}
-main{display:flex;gap:20px;margin-top:16px;align-items:flex-start}
-.left{flex:0 0 52%;min-width:260px}
-.right{flex:1}
-.board-wrap{background:linear-gradient(180deg,#fff,#f7fbff);padding:16px;border-radius:12px;border:1px solid #edf2f7}
-#puzzle{position:relative;width:100%;max-width:520px;aspect-ratio:1/1;background:transparent;border-radius:10px}
-.cell{position:absolute;transition:transform .18s cubic-bezier(.2,.8,.2,1);width:calc(25% - 6px);height:calc(25% - 6px);display:flex;align-items:center;justify-content:center;border-radius:10px}
-.tile{background:var(--tile);color:var(--tile-text);font-weight:700;font-size:clamp(18px,3.6vw,28px);user-select:none;cursor:pointer;box-shadow:0 8px 18px rgba(14,82,196,0.12);display:flex;align-items:center;justify-content:center}
-.tile:hover{transform:translateY(-4px)}
-.empty{background:transparent;cursor:default;box-shadow:none}
-.meta{display:flex;gap:8px;align-items:center;margin-top:12px}
-.progress{flex:1;background:#eef2f7;border-radius:999px;height:12px;overflow:hidden}
-.progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--primary));width:0%;transition:width .35s ease}
-.meta .label{font-size:13px;color:var(--muted)}
-.skills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.skill-btn{padding:8px 10px;border-radius:8px;background:#fff;border:1px solid #e6eefc;cursor:pointer;display:flex;align-items:center;gap:8px}
-.skill-btn.disabled{opacity:0.5;cursor:not-allowed}
-.guide{background:#fff;border-radius:10px;padding:12px;border:1px solid #f1f5f9}
-.msg{position:fixed;left:50%;top:14%;transform:translateX(-50%);background:rgba(15,23,42,0.95);color:white;padding:12px 18px;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.3);display:none;z-index:1000}
-.msg.show{display:block;animation:pop .36s ease}
-@keyframes pop{from{transform:translate(-50%,-10px) scale(.98);opacity:0}to{transform:translate(-50%,0) scale(1);opacity:1}}
-.clear-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.8);background:var(--primary);color:white;padding:20px 28px;font-size:24px;border-radius:14px;box-shadow:0 10px 28px rgba(0,0,0,0.25);display:none;z-index:1001;text-align:center;animation:popClear .5s forwards}
-@keyframes popClear{0%{transform:translate(-50%,-50%) scale(0.8);opacity:0}50%{transform:translate(-50%,-50%) scale(1.1);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
-@media(max-width:900px){main{flex-direction:column}.left{order:2}.right{order:1}}
+body{margin:0;overflow:hidden;background:#000;}
+canvas{display:block;}
+#score,#hp,#ammo,#weapon,#level{position:absolute;font-size:20px;color:white;}
+#score{top:10px;left:10px;}
+#hp{top:40px;left:10px;}
+#ammo{top:70px;left:10px;}
+#weapon{top:100px;left:10px;}
+#level{top:130px;left:10px;}
+#minimap{position:absolute;top:10px;right:10px;width:150px;height:150px;background:rgba(0,0,0,0.5);border:1px solid white;}
 </style>
 </head>
 <body>
-<div class="wrap" role="application" aria-label="15パズルゲーム">
-<header>
-<div>
-<h1>15パズル — 完全版</h1>
-<div style="font-size:13px;color:var(--muted)">矢印キー / クリックでプレイ。上2行揃いで技リチャージ。</div>
-</div>
-<div class="controls">
-<button class="btn" id="restartBtn">⟲ Restart</button>
-<button class="btn secondary" id="shuffleBtn">Shuffle</button>
-<button class="btn ghost" id="soundToggle">🔊 ON</button>
-<label style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px">
-<input type="checkbox" id="timeAttackChk" /> Time Attack
-</label>
-<label style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px">
-Stage
-<select id="stageSelect" style="border-radius:8px;padding:6px 8px">
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-</select>
-</label>
-<div id="timer" style="min-width:80px;text-align:right;color:var(--muted)">00:00.00</div>
-</div>
-</header>
-<main>
-<div class="left">
-<div class="board-wrap">
-<div id="puzzle" aria-label="パズル盤面"></div>
-<div class="meta">
-<div class="label" style="font-size:13px;color:var(--muted)">上2行の揃い度</div>
-<div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
-<div style="width:64px;text-align:right;font-size:13px;color:var(--muted)" id="progressText">0/8</div>
-</div>
-</div>
-<div class="skills" id="skills">
-<button class="skill-btn" id="skill-shuffle">🌀 シャッフル</button>
-<button class="skill-btn" id="skill-swap">💨 スワップ</button>
-<button class="skill-btn" id="skill-line">🔥 ライン回転</button>
-<button class="skill-btn" id="skill-hint">⚡ ヒント</button>
-</div>
-<div style="margin-top:8px;font-size:13px;color:var(--muted)">操作: 矢印キー / タップ</div>
-</div>
-<div class="right">
-<div class="guide" role="note">
-<h3 style="margin:0 0 8px 0">遊び方</h3>
-<p style="margin:0;color:var(--muted)">クリック/タップまたは矢印キーでタイルを動かして、1〜15を順に並べよう。上2行が揃うと技が全回復。全て揃うとクリア表示！</p>
-<ul style="margin:8px 0 0 18px;color:var(--muted);font-size:13px">
-<li>🌀 シャッフル: 盤面をランダム化</
+<div id="score">Score: 0</div>
+<div id="hp">HP: 100</div>
+<div id="ammo">Ammo: 20</div>
+<div id="weapon">Weapon: Normal</div>
+<div id="level">Level: 1</div>
+<canvas id="minimap"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/PointerLockControls.js"></script>
+<script>
+// --- 基本変数 ---
+let scene,camera,renderer,controls;
+let bullets=[],enemies=[],walls=[],items=[];
+let score=0,hp=100,ammo=20,level=1;
+let shooting=false,lastShotTime=0;
+let fireRate=200,reloadTime=2000;
+let weapon='normal';
+const mazeSize=10, cellSize=2;
+const miniCanvas=document.getElementById('minimap');
+const miniCtx=miniCanvas.getContext('2d');
+
+// --- 初期化 ---
+init();
+animate();
+
+function init(){
+scene=new THREE.Scene();
+scene.background=new THREE.Color(0x87ceeb);
+camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+camera.position.set(0,1.6,0);
+renderer=new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth,window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// 地面
+const floor=new THREE.Mesh(
+new THREE.PlaneGeometry(100,100),
+new THREE.MeshPhongMaterial({color:0x228B22})
+);
+floor.rotation.x=-Math.PI/2;
+scene.add(floor);
+
+// 光源
+const light=new THREE.DirectionalLight(0xffffff,1);
+light.position.set(10,20,10);
+scene.add(light);
+scene.add(new THREE.AmbientLight(0x404040));
+
+// FPSコントロール
+controls=new THREE.PointerLockControls(camera,document.body);
+document.body.addEventListener('click',()=>controls.lock());
+
+// キー操作
+const move={forward:false,backward:false,left:false,right:false};
+document.addEventListener('keydown',(e)=>{
+if(e.code==='KeyW') move.forward=true;
+if(e.code==='KeyS') move.backward=true;
+if(e.code==='KeyA') move.left=true;
+if(e.code==='KeyD') move.right=true;
+if(e.code==='KeyR') reload();
+if(e.code==='Digit1'){weapon='normal'; fireRate=200; ammo=20; document.getElementById('weapon').textContent='Weapon: Normal'; document.getElementById('ammo').textContent='Ammo: '+ammo;}
+if(e.code==='Digit2'){weapon='strong'; fireRate=500; ammo=5; document.getElementById('weapon').textContent='Weapon: Strong'; document.getElementById('ammo').textContent='Ammo: '+ammo;}
+});
+document.addEventListener('keyup',(e)=>{
+if(e.code==='KeyW') move.forward=false;
+if(e.code==='KeyS') move.backward=false;
+if(e.code==='KeyA') move.left=false;
+if(e.code==='KeyD') move.right=false;
+});
+document.addEventListener('mousedown',()=>shooting=true);
+document.addEventListener('mouseup',()=>shooting=false);
+
+// 初期迷路と敵
+generateMaze(level);
+spawnEnemies(level);
+spawnItems(level);
+
+// --- 移動 ---
+function updateControls(){
+const speed=0.1;
+if(move.forward) controls.moveForward(speed);
+if(move.backward) controls.moveForward(-speed);
+if(move.left) controls.moveRight(-speed);
+if(move.right) controls.moveRight(speed);
+}
+
+// --- 射撃 ---
+function shootBullet(){
+const now=Date.now();
+if(now-lastShotTime<fireRate||ammo<=0) return;
+lastShotTime=now;
+ammo--;
+document.getElementById('ammo').textContent='Ammo: '+ammo;
+
+const bullet=new THREE.Mesh(
+new THREE.SphereGeometry(0.1,8,8),
+new THREE.MeshBasicMaterial({color:weapon==='normal'?0xff0000:0xffff00})
+);
+bullet.position.copy(camera.position);
+const dir=new THREE.Vector3();
+camera.getWorldDirection(dir);
+bullet.userData={velocity:dir.clone().multiplyScalar(weapon==='normal'?2:3), owner:'player'};
+scene.add(bullet);
+bullets.push(bullet);
+
+// 射撃音
+const audio=new Audio('https://www.soundjay.com/mechanical/sounds/pistol-01.mp3');
+audio.volume=0.2; audio.play();
+}
+
+// --- リロード ---
+function reload(){
+setTimeout(()=>{ammo=weapon==='normal'?20:5; document.getElementById('ammo').textContent='Ammo: '+ammo;},reloadTime);
+}
+
+// --- アニメーション ---
+function animate(){
+requestAnimationFrame(animate);
+updateControls();
+
+// 射撃
+if(shooting) shootBullet();
+
+// 弾処理
+bullets.forEach((b,index)=>{
+b.position.add(b.userData.velocity);
+
+// 壁衝突
+walls.forEach(w=>{
+if(new THREE.Box3().setFromObject(w).containsPoint(b.position)){
+scene.remove(b); bullets.splice(index,1);
+}
+});
+
+// 敵衝突
+if(b.userData.owner==='player'){
+enemies.forEach((e,eIndex)=>{
+if(new THREE.Box3().setFromObject(e.mesh).containsPoint(b.position)){
+scene.remove(e.mesh);
+enemies.splice(eIndex,1);
+scene.remove(b); bullets.splice(index,1);
+score+=10; document.getElementById('score').textContent='Score: '+score;
+// ヒット音
+const hitAudio=new Audio('https://www.soundjay.com/button/sounds/button-16.mp3');
+hitAudio.volume=0.2; hitAudio.play();
+// パーティクル
+createParticles(e.mesh.position);
+spawnEnemyRandom();
+checkLevelUp();
+}
+});
+}
+
+// アイテム取得
+items.forEach((it,i)=>{
+if(camera.position.distanceTo(it.position)<1){
+scene.remove(it); items.splice(i,1);
+weapon='strong'; ammo=5; fireRate=500;
+document.getElementById('weapon').textContent='Weapon: Strong';
+document.getElementById('ammo').textContent='Ammo: '+ammo;
+// アイテム取得音
+const itemAudio=new Audio('https://www.soundjay.com/button/sounds/button-10.mp3');
+itemAudio.volume=0.3; itemAudio.play();
+}
+});
+
+// 敵の弾
+if(b.userData.owner==='enemy'){
+if(camera.position.distanceTo(b.position)<0.5){
+hp-=5; if(hp<0) hp=0;
+document.getElementById('hp').textContent='HP: '+Math.floor(hp);
+scene.remove(b); bullets.splice(index,1);
+if(hp===0){gameOver();}
+}
+}
+
+if(b.position.length()>100){scene.remove(b); bullets.splice(index,1);}
+});
+
+// 敵AI
+enemies.forEach(e=>{
+if(e.type==='chase'){
+const dir=new THREE.Vector3();
+dir.subVectors(camera.position,e.mesh.position).setY(0).normalize();
+e.mesh.position.add(dir.multiplyScalar(e.speed));
+if(e.mesh.position.distanceTo(camera.position)<1){
+hp-=0.5; if(hp<0) hp=0;
+document.getElementById('hp').textContent='HP: '+Math.floor(hp);
+if(hp===0){gameOver();}
+}
+}
+if(e.type==='shoot'){
+if(!e.cooldown) e.cooldown=0;
+e.cooldown--;
+if(e.cooldown<=0 && e.mesh.position.distanceTo(camera.position)<10){
+const bullet=new THREE.Mesh(
+new THREE.SphereGeometry(0.1,8,8),
+new THREE.MeshBasicMaterial({color:0x00ffff})
+);
+bullet.position.copy(e.mesh.position);
+const dir=new THREE.Vector3();
+dir.subVectors(camera.position,e.mesh.position).normalize();
+bullet.userData={velocity:dir.multiplyScalar(1.5), owner:'enemy'};
+scene.add(bullet); bullets.push(bullet);
+e.cooldown=100;
+const audio=new Audio('https://www.soundjay.com/mechanical/sounds/pistol-01.mp3'); audio.volume=0.2; audio.play();
+}
+}
+});
+
+// ミニマップ
+drawMiniMap();
+
+renderer.render(scene,camera);
+}
+
+// --- パーティクル ---
+function createParticles(pos){
+for(let i=0;i<10;i++){
+const part=new THREE.Mesh(new THREE.SphereGeometry(0.05,4,4), new THREE.MeshBasicMaterial({color:0xffff00}));
+part.position.copy(pos);
+const vel=new THREE.Vector3((Math.random()-0.5)*0.5,Math.random()*0.5,(Math.random()-0.5)*0.5);
+part.userData={velocity:vel, life:30};
+scene.add(part);
+function update(){part.position.add(vel); part.userData.life--; if(part.userData.life<=0){scene.remove(part);}else{requestAnimationFrame(update);}}
+update();
+}
+}
+
+// --- 迷路生成 ---
+function generateMaze(level){
+walls.forEach(w=>scene.remove(w));
+walls=[];
+for(let i=0;i<mazeSize;i++){
+for(let j=0;j<mazeSize;j++){
+if(Math.random()<0.3+level*0.05){
+const wall=new THREE.Mesh(
+new THREE.BoxGeometry(cellSize,1,cellSize),
+new THREE.MeshPhongMaterial({color:0x8B4513})
+);
+wall.position.set(j*cellSize-5,0.5,i*cellSize-5);
+scene.add(wall); walls.push(wall);
+}
+}
+}
+}
+
+// --- 敵生成 ---
+function spawnEnemies(level){enemies=[]; for(let i=0;i<3+level;i++) spawnEnemyRandom();}
+function spawnEnemyRandom(){
+const type=Math.random()<0.7?'chase':'shoot';
+const mesh=new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhongMaterial({color:type==='chase'?0xff00ff:0x00ffff}));
+mesh.position.set(Math.random()*10-5,0.5,Math.random()*-10);
+scene.add(mesh);
+enemies.push({mesh:mesh,type:type,speed:type==='chase'?0.02:0,cooldown:0});
+}
+
+// --- アイテム生成 ---
+function spawnItems(level){
+items.forEach(it=>scene.remove(it)); items=[];
+for(let i=0;i<level;i++){
+const it=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.5,0.5), new THREE.MeshPhongMaterial({color:0x00ff00}));
+it.position.set(Math.random()*10-5,0.25,Math.random()*-10);
+scene.add(it); items.push(it);
+}
+}
+
+// --- ミニマップ ---
+function drawMiniMap(){
+miniCtx.clearRect(0,0,150,150);
+miniCtx.fillStyle='white';
+const px=(camera.position.x+10)/20*150;
+const pz=(camera.position.z+10)/20*150;
+miniCtx.fillRect(px,pz,5,5);
+enemies.forEach(e=>{
+miniCtx.fillStyle='red';
+const ex=(e.mesh.position.x+10)/20*150;
+const ez=(e.mesh.position.z+10)/20*150;
+miniCtx.fillRect(ex,ez,5,5);
+});
+items.forEach(it=>{
+miniCtx.fillStyle='lime';
+const ix=(it.position.x+10)/20*150;
+const iz=(it.position.z+10)/20*150;
+miniCtx.fillRect(ix,iz,5,5);
+});
+}
+
+// --- レベルアップ判定 ---
+function checkLevelUp(){
+if(score>=level*50){
+level++; document.getElementById('level').textContent='Level: '+level;
+generateMaze(level); spawnEnemies(level); spawnItems(level);
+const audio=new Audio('https://www.soundjay.com/button/sounds/button-3.mp3'); audio.volume=0.3; audio.play();
+}
+}
+
+// --- ゲームオーバー ---
+function gameOver(){
+alert('Game Over!'); score=0; hp=100; level=1; document.getElementById('score').textContent='Score: '+score; document.getElementById('hp').textContent='HP: '+hp; document.getElementById('level').textContent='Level: '+level; generateMaze(level); spawnEnemies(level); spawnItems(level);
+}
+
+window.addEventListener('resize',()=>{
+camera.aspect=window.innerWidth/window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth,window.innerHeight);
+});
+</script>
+</body>
+</html>
