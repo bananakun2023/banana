@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>スライドパズル＋技リセット</title>
+<title>スライドパズル＋方向キー操作</title>
 <style>
   body { font-family: sans-serif; text-align: center; background: #f2f2f2; }
   h1 { margin-top: 20px; }
@@ -35,7 +35,7 @@
 </style>
 </head>
 <body>
-  <h1>15パズル＋技リセット</h1>
+  <h1>15パズル＋方向キー操作</h1>
   <div id="puzzle"></div>
 
   <div>
@@ -109,7 +109,6 @@ function checkWin() {
   message.textContent = "クリア！おめでとう！✨";
 }
 
-// ✅ 2行揃いチェック（上2行＝最初の8枚）
 function checkTwoLines() {
   let correct = true;
   for (let i = 0; i < 8; i++) {
@@ -148,9 +147,7 @@ function skillSwap() {
   if (skillsUsed.swap) return;
   message.textContent = "💨 スワップ技：2つのタイルをクリックして入れ替えて！";
   const tilesDiv = document.querySelectorAll(".tile:not(.empty)");
-  tilesDiv.forEach((tile, i) => {
-    tile.addEventListener("click", selectTile);
-  });
+  tilesDiv.forEach((tile) => tile.addEventListener("click", selectTile));
 
   function selectTile(e) {
     const idx = Array.from(puzzle.children).indexOf(e.target);
@@ -202,6 +199,23 @@ function skillHint() {
     }
   }
 }
+
+// 🎮 方向キー操作
+window.addEventListener("keydown", (e) => {
+  const emptyIndex = tiles.indexOf(null);
+  let targetIndex = null;
+  if (e.key === "ArrowUp" && emptyIndex + 4 < 16) targetIndex = emptyIndex + 4;
+  if (e.key === "ArrowDown" && emptyIndex - 4 >= 0) targetIndex = emptyIndex - 4;
+  if (e.key === "ArrowLeft" && emptyIndex % 4 < 3) targetIndex = emptyIndex + 1;
+  if (e.key === "ArrowRight" && emptyIndex % 4 > 0) targetIndex = emptyIndex - 1;
+
+  if (targetIndex !== null) {
+    [tiles[targetIndex], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[targetIndex]];
+    render();
+    checkWin();
+    checkTwoLines();
+  }
+});
 
 createPuzzle();
 </script>
