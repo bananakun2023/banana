@@ -1,223 +1,196 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>スライドパズル＋方向キー操作</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>15パズル — 完全版（音ON/OFF・滑らかスライド・タイムアタック/ステージ）</title>
 <style>
-  body { font-family: sans-serif; text-align: center; background: #f2f2f2; }
-  h1 { margin-top: 20px; }
-  #puzzle {
-    display: grid;
-    grid-template-columns: repeat(4, 80px);
-    grid-template-rows: repeat(4, 80px);
-    gap: 5px;
-    margin: 20px auto;
-    width: max-content;
-  }
-  .tile {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #4cafef;
-    color: white;
-    font-size: 24px;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    user-select: none;
-  }
-  .empty {
-    background: #ddd;
-    cursor: default;
-  }
-  button { margin: 5px; padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer; background: #4cafef; color: white; font-size: 14px; }
-  button:disabled { background: #aaa; cursor: not-allowed; }
+  :root{--bg:#f4f7fb;--card:#fff;--primary:#3b82f6;--muted:#6b7280;--accent:#ffb020;--tile:#60a5fa;--tile-text:#fff;--disabled:#cbd5e1}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,var(--bg),#eef6ff);color:#0f172a;display:flex;align-items:flex-start;justify-content:center;min-height:100vh;padding:24px}
+  .wrap{width:100%;max-width:980px;background:var(--card);border-radius:14px;box-shadow:0 8px 30px rgba(11,26,48,0.06);padding:18px}
+  header{display:flex;gap:12px;align-items:center;justify-content:space-between}
+  h1{font-size:18px;margin:0}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .btn{background:var(--primary);color:white;border:none;padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  .btn.secondary{background:transparent;color:var(--primary);border:1px solid rgba(59,130,246,0.12)}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid #eef2f7}
+  .btn:disabled{background:var(--disabled);color:#fff;cursor:not-allowed;opacity:0.9}
+  main{display:flex;gap:20px;margin-top:16px;align-items:flex-start}
+  .left{flex:0 0 52%;min-width:260px}
+  .right{flex:1}
+  .board-wrap{background:linear-gradient(180deg,#fff,#f7fbff);padding:16px;border-radius:12px;border:1px solid #edf2f7}
+
+  /* responsive absolute board */
+  #puzzle{position:relative;width:100%;max-width:520px;aspect-ratio:1/1;background:transparent;border-radius:10px}
+  .cell{position:absolute;transition:transform .18s cubic-bezier(.2,.8,.2,1);width:calc(25% - 6px);height:calc(25% - 6px);display:flex;align-items:center;justify-content:center;border-radius:10px}
+  .tile{background:var(--tile);color:var(--tile-text);font-weight:700;font-size:clamp(18px,3.6vw,28px);user-select:none;cursor:pointer;box-shadow:0 8px 18px rgba(14,82,196,0.12);display:flex;align-items:center;justify-content:center}
+  .tile:hover{transform:translateY(-4px)}
+  .empty{background:transparent;cursor:default;box-shadow:none}
+
+  .meta{display:flex;gap:8px;align-items:center;margin-top:12px}
+  .progress{flex:1;background:#eef2f7;border-radius:999px;height:12px;overflow:hidden}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--primary));width:0%;transition:width .35s ease}
+  .meta .label{font-size:13px;color:var(--muted)}
+  .skills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .skill-btn{padding:8px 10px;border-radius:8px;background:#fff;border:1px solid #e6eefc;cursor:pointer;display:flex;align-items:center;gap:8px}
+  .skill-btn.disabled{opacity:0.5;cursor:not-allowed}
+  .guide{background:#fff;border-radius:10px;padding:12px;border:1px solid #f1f5f9}
+  .msg{position:fixed;left:50%;top:14%;transform:translateX(-50%);background:rgba(15,23,42,0.95);color:white;padding:12px 18px;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.3);display:none;z-index:1000}
+  .msg.show{display:block;animation:pop .36s ease}
+  @keyframes pop{from{transform:translate(-50%,-10px) scale(.98);opacity:0}to{transform:translate(-50%,0) scale(1);opacity:1}}
+  @media (max-width:900px){main{flex-direction:column}.left{order:2}.right{order:1}}
 </style>
 </head>
 <body>
-  <h1>15パズル＋方向キー操作</h1>
-  <div id="puzzle"></div>
+  <div class="wrap" role="application" aria-label="15パズルゲーム">
+    <header>
+      <div>
+        <h1>15パズル — 完全版</h1>
+        <div style="font-size:13px;color:var(--muted)">矢印キー / クリックでプレイ。上2行揃いで技リチャージ。</div>
+      </div>
+      <div class="controls">
+        <button class="btn" id="restartBtn" aria-label="ゲームを再スタート">⟲ Restart</button>
+        <button class="btn secondary" id="shuffleBtn" aria-label="盤面をランダムにシャッフル">Shuffle</button>
+        <button class="btn ghost" id="soundToggle" aria-label="サウンドのオンオフ">🔊 ON</button>
+        <label style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px">
+          <input type="checkbox" id="timeAttackChk" /> Time Attack
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px">
+          Stage
+          <select id="stageSelect" style="border-radius:8px;padding:6px 8px">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </label>
+        <div id="timer" style="min-width:80px;text-align:right;color:var(--muted)">00:00.00</div>
+      </div>
+    </header>
 
-  <div>
-    <button onclick="shuffle()">通常シャッフル</button>
-    <button id="skill-shuffle" onclick="skillShuffle()">🌀 技：シャッフル</button>
-    <button id="skill-swap" onclick="skillSwap()">💨 技：スワップ</button>
-    <button id="skill-line" onclick="skillLine()">🔥 技：ライン回転</button>
-    <button id="skill-hint" onclick="skillHint()">⚡ 技：ヒント</button>
+    <main>
+      <div class="left">
+        <div class="board-wrap">
+          <div id="puzzle" aria-label="パズル盤面"></div>
+          <div class="meta">
+            <div class="label" style="font-size:13px;color:var(--muted)">上2行の揃い度</div>
+            <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+            <div style="width:64px;text-align:right;font-size:13px;color:var(--muted)" id="progressText">0/8</div>
+          </div>
+        </div>
+
+        <div class="skills" id="skills">
+          <button class="skill-btn" id="skill-shuffle" aria-label="技 シャッフル">🌀 シャッフル</button>
+          <button class="skill-btn" id="skill-swap" aria-label="技 スワップ">💨 スワップ</button>
+          <button class="skill-btn" id="skill-line" aria-label="技 ライン回転">🔥 ライン回転</button>
+          <button class="skill-btn" id="skill-hint" aria-label="技 ヒント">⚡ ヒント</button>
+        </div>
+        <div style="margin-top:8px;font-size:13px;color:var(--muted)">操作: 矢印キー / タップ</div>
+      </div>
+
+      <div class="right">
+        <div class="guide" role="note">
+          <h3 style="margin:0 0 8px 0">遊び方</h3>
+          <p style="margin:0;color:var(--muted)">クリック/タップまたは矢印キーでタイルを動かして、1〜15を順に並べよう。上2行（1〜8）が揃うと技が全回復するよ！Type: Time Attack（時間計測）をチェックするとタイマー開始。</p>
+          <ul style="margin:8px 0 0 18px;color:var(--muted);font-size:13px">
+            <li>🌀 シャッフル: 盤面をランダム化（使い切り）</li>
+            <li>💨 スワップ: 任意の2タイルを入れ替え（タップで選択）</li>
+            <li>🔥 ライン回転: ランダムな1行を右へ1回転</li>
+            <li>⚡ ヒント: 1つのタイルを正しい位置へ</li>
+          </ul>
+        </div>
+
+        <div style="margin-top:12px" class="guide">
+          <h3 style="margin:0 0 8px 0">開発メモ</h3>
+          <p style="margin:0;color:var(--muted);font-size:13px">状態は gameState で一元管理。レンダリングはタイルを絶対配置し transform で移動させ、スムーズなスライドを実現。音は WebAudio、ミュート可能。</p>
+        </div>
+      </div>
+    </main>
   </div>
-  <p id="message"></p>
+
+  <div id="msg" class="msg" role="status" aria-live="polite"></div>
 
 <script>
-const puzzle = document.getElementById("puzzle");
-const message = document.getElementById("message");
-let tiles = [];
-let selectedIndex = null;
+/* ===== state ===== */
+const gameState = { tiles: [], skillsUsed:{shuffle:false,swap:false,line:false,hint:false}, swapMode:false, selectedSwapIndex:null, started:false, timerRunning:false, startTime:0, elapsed:0, audioEnabled:true };
+const puzzleEl = document.getElementById('puzzle');
+const msgEl = document.getElementById('msg');
+const progressBar = document.getElementById('progressBar');
+const progressText = document.getElementById('progressText');
+const timerEl = document.getElementById('timer');
+let audioCtx=null; let timerInterval=null;
 
-const skillsUsed = {
-  shuffle: false,
-  swap: false,
-  line: false,
-  hint: false
-};
+/* ===== audio util ===== */
+function playTone(freq=440,time=0.06){ if(!gameState.audioEnabled) return; try{ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); o.type='sine'; o.frequency.value=freq; g.gain.value=0.06; o.start(); o.stop(audioCtx.currentTime+time);}catch(e){} }
 
-function createPuzzle() {
-  tiles = [];
-  for (let i = 1; i <= 15; i++) tiles.push(i);
-  tiles.push(null);
-  render();
-}
+/* ===== messaging ===== */
+function showMsg(text, timeout=1200){ msgEl.textContent=text; msgEl.classList.add('show'); setTimeout(()=>msgEl.classList.remove('show'), timeout); }
 
-function render() {
-  puzzle.innerHTML = "";
-  tiles.forEach((num, i) => {
-    const tile = document.createElement("div");
-    tile.classList.add("tile");
-    if (num === null) {
-      tile.classList.add("empty");
-    } else {
-      tile.textContent = num;
-      tile.addEventListener("click", () => moveTile(i));
-    }
-    puzzle.appendChild(tile);
-  });
-}
+/* ===== layout helpers ===== */
+function cellSize(){ return puzzleEl.clientWidth/4; }
+function posToXY(index){ const r=Math.floor(index/4); const c=index%4; const s=cellSize(); return {x: c*s + c* (s*0.02), y: r*s + r*(s*0.02)}; }
 
-function moveTile(index) {
-  const emptyIndex = tiles.indexOf(null);
-  const canMove = [index - 1, index + 1, index - 4, index + 4].includes(emptyIndex) &&
-                  !(index % 4 === 0 && emptyIndex === index - 1) &&
-                  !(emptyIndex % 4 === 0 && index === emptyIndex - 1);
-  if (canMove) {
-    [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
-    render();
-    checkWin();
-    checkTwoLines();
-  }
-}
+/* ===== create & render (absolute positioning) ===== */
+function createPuzzle(){ gameState.tiles=[]; for(let i=1;i<=15;i++)gameState.tiles.push(i); gameState.tiles.push(null); // initial stage based shuffle
+  const stage = Number(document.getElementById('stageSelect').value)||1; shuffleTiles(stage*40); gameState.skillsUsed={shuffle:false,swap:false,line:false,hint:false}; gameState.swapMode=false; gameState.selectedSwapIndex=null; gameState.started=false; stopTimer(); render(); updateSkillButtons(); }
 
-function shuffle() {
-  for (let i = tiles.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
-  }
-  render();
-  message.textContent = "";
-}
+function render(){ puzzleEl.innerHTML=''; const s=cellSize(); for(let i=0;i<16;i++){ const val = gameState.tiles[i]; const cell = document.createElement('div'); cell.className='cell'; cell.style.width = (s - (s*0.04)) + 'px'; cell.style.height = (s - (s*0.04)) + 'px'; cell.style.left = '0px'; cell.style.top='0px'; const {x,y} = posToXY(i); cell.style.transform = `translate(${x}px, ${y}px)`; if(val===null){ cell.classList.add('empty'); puzzleEl.appendChild(cell); continue; } const t = document.createElement('div'); t.className='tile'; t.textContent=val; t.setAttribute('role','button'); t.setAttribute('tabindex','0'); t.setAttribute('data-num', val); t.addEventListener('click', ()=>onTileClick(val)); t.addEventListener('keydown', (e)=>{ if(e.key==='Enter') onTileClick(val); }); cell.appendChild(t); puzzleEl.appendChild(cell); }
+  updateProgress(); updateSkillButtons(); }
 
-function checkWin() {
-  for (let i = 0; i < 15; i++) if (tiles[i] !== i + 1) return;
-  message.textContent = "クリア！おめでとう！✨";
-}
+function onTileClick(tileNum){ if(!gameState.started && document.getElementById('timeAttackChk').checked){ startTimer(); gameState.started=true; }
+  if(gameState.swapMode){ // find index of tileNum
+    const idx = gameState.tiles.indexOf(tileNum); handleSwapSelection(idx); return; }
+  const idx = gameState.tiles.indexOf(tileNum); moveTileByIndex(idx); }
 
-function checkTwoLines() {
-  let correct = true;
-  for (let i = 0; i < 8; i++) {
-    if (tiles[i] !== i + 1) {
-      correct = false;
-      break;
-    }
-  }
-  if (correct) {
-    resetSkills();
-    message.textContent = "✨ 上2行が揃った！技がリセットされた！";
-  }
-}
+/* ===== movement (find empty adjacent) ===== */
+function moveTileByIndex(index){ const emptyIndex = gameState.tiles.indexOf(null); const canMove = [index-1,index+1,index-4,index+4].includes(emptyIndex) && !(index%4===0 && emptyIndex===index-1) && !(emptyIndex%4===0 && index===emptyIndex-1); if(!canMove) return; [gameState.tiles[index], gameState.tiles[emptyIndex]] = [gameState.tiles[emptyIndex], gameState.tiles[index]]; render(); playTone(700,0.04); checkWin(); checkTwoLines(); }
 
-function resetSkills() {
-  for (const key in skillsUsed) {
-    skillsUsed[key] = false;
-  }
-  document.getElementById("skill-shuffle").disabled = false;
-  document.getElementById("skill-swap").disabled = false;
-  document.getElementById("skill-line").disabled = false;
-  document.getElementById("skill-hint").disabled = false;
-}
+window.addEventListener('keydown',(e)=>{ const keys=['ArrowUp','ArrowDown','ArrowLeft','ArrowRight']; if(!keys.includes(e.key)) return; e.preventDefault(); if(!gameState.started && document.getElementById('timeAttackChk').checked){ startTimer(); gameState.started=true; } const emptyIndex = gameState.tiles.indexOf(null); let target=null; if(e.key==='ArrowUp' && emptyIndex+4<16) target = emptyIndex+4; if(e.key==='ArrowDown' && emptyIndex-4>=0) target = emptyIndex-4; if(e.key==='ArrowLeft' && emptyIndex%4<3) target = emptyIndex+1; if(e.key==='ArrowRight' && emptyIndex%4>0) target = emptyIndex-1; if(target!==null){ [gameState.tiles[target], gameState.tiles[emptyIndex]] = [gameState.tiles[emptyIndex], gameState.tiles[target]]; render(); playTone(700,0.04); checkWin(); checkTwoLines(); } });
 
-// 🌀 技1：シャッフル
-function skillShuffle() {
-  if (skillsUsed.shuffle) return;
-  skillsUsed.shuffle = true;
-  document.getElementById("skill-shuffle").disabled = true;
-  shuffle();
-  message.textContent = "🌀 技発動！盤面が再シャッフルされた！";
-}
+/* ===== shuffle util ===== */
+function shuffleTiles(times=1){ for(let t=0;t<times;t++){ for(let i=gameState.tiles.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [gameState.tiles[i], gameState.tiles[j]] = [gameState.tiles[j], gameState.tiles[i]]; } } }
 
-// 💨 技2：スワップ
-function skillSwap() {
-  if (skillsUsed.swap) return;
-  message.textContent = "💨 スワップ技：2つのタイルをクリックして入れ替えて！";
-  const tilesDiv = document.querySelectorAll(".tile:not(.empty)");
-  tilesDiv.forEach((tile) => tile.addEventListener("click", selectTile));
+/* ===== skills ===== */
+function updateSkillButtons(){ ['shuffle','swap','line','hint'].forEach(k=>{ const btn = document.getElementById('skill-'+k); if(gameState.skillsUsed[k]){ btn.classList.add('disabled'); btn.setAttribute('aria-disabled','true'); } else{ btn.classList.remove('disabled'); btn.removeAttribute('aria-disabled'); } }); }
+function skillShuffle(){ if(gameState.skillsUsed.shuffle) return; gameState.skillsUsed.shuffle=true; updateSkillButtons(); shuffleTiles(80); render(); showMsg('🌀 技: シャッフル！'); playTone(300,0.08); }
+function skillSwap(){ if(gameState.skillsUsed.swap) return; gameState.swapMode=true; gameState.selectedSwapIndex=null; showMsg('💨 スワップ技：入れ替えたい2つをタップ'); }
+function handleSwapSelection(idx){ if(gameState.selectedSwapIndex===null){ gameState.selectedSwapIndex=idx; const el = findCellAtIndex(idx); if(el) el.style.outline='3px solid rgba(255,184,28,0.35)'; playTone(880,0.06); } else if(gameState.selectedSwapIndex===idx){ const prev = findCellAtIndex(gameState.selectedSwapIndex); if(prev) prev.style.outline=''; gameState.selectedSwapIndex=null; gameState.swapMode=false; showMsg('キャンセル'); } else{ const i1=gameState.selectedSwapIndex, i2=idx; [gameState.tiles[i1], gameState.tiles[i2]] = [gameState.tiles[i2], gameState.tiles[i1]]; const prev = findCellAtIndex(i1); if(prev) prev.style.outline=''; gameState.swapMode=false; gameState.selectedSwapIndex=null; gameState.skillsUsed.swap=true; updateSkillButtons(); render(); showMsg('💨 スワップ完了'); playTone(520,0.08); checkTwoLines(); checkWin(); } }
+function skillLine(){ if(gameState.skillsUsed.line) return; const row = Math.floor(Math.random()*4); const start = row*4; const rowTiles = gameState.tiles.slice(start,start+4); rowTiles.unshift(rowTiles.pop()); for(let i=0;i<4;i++) gameState.tiles[start+i] = rowTiles[i]; gameState.skillsUsed.line=true; updateSkillButtons(); render(); showMsg('🔥 '+(row+1)+'行目を回転'); playTone(420,0.08); checkTwoLines(); }
+function skillHint(){ if(gameState.skillsUsed.hint) return; for(let i=0;i<15;i++){ if(gameState.tiles[i]!==i+1 && gameState.tiles.includes(i+1)){ const cur = gameState.tiles.indexOf(i+1); [gameState.tiles[i], gameState.tiles[cur]] = [gameState.tiles[cur], gameState.tiles[i]]; gameState.skillsUsed.hint=true; updateSkillButtons(); render(); showMsg('⚡ ヒント：1つ正しい位置へ移動'); playTone(980,0.08); checkTwoLines(); checkWin(); return; } } }
 
-  function selectTile(e) {
-    const idx = Array.from(puzzle.children).indexOf(e.target);
-    if (selectedIndex === null) {
-      selectedIndex = idx;
-      e.target.style.background = "#ff9800";
-    } else {
-      [tiles[selectedIndex], tiles[idx]] = [tiles[idx], tiles[selectedIndex]];
-      selectedIndex = null;
-      skillsUsed.swap = true;
-      document.getElementById("skill-swap").disabled = true;
-      render();
-      message.textContent = "💨 スワップ完了！";
-      checkWin();
-      checkTwoLines();
-    }
-  }
-}
+document.getElementById('skill-shuffle').addEventListener('click', skillShuffle);
+document.getElementById('skill-swap').addEventListener('click', skillSwap);
+document.getElementById('skill-line').addEventListener('click', skillLine);
+document.getElementById('skill-hint').addEventListener('click', skillHint);
 
-// 🔥 技3：ライン回転
-function skillLine() {
-  if (skillsUsed.line) return;
-  const row = Math.floor(Math.random() * 4);
-  const start = row * 4;
-  const rowTiles = tiles.slice(start, start + 4);
-  rowTiles.unshift(rowTiles.pop());
-  for (let i = 0; i < 4; i++) tiles[start + i] = rowTiles[i];
-  skillsUsed.line = true;
-  document.getElementById("skill-line").disabled = true;
-  render();
-  message.textContent = `🔥 ${row + 1}行目が回転した！`;
-  checkTwoLines();
-}
+/* ===== helpers ===== */
+function findCellAtIndex(idx){ const cells = puzzleEl.querySelectorAll('.cell'); return cells[idx] || null; }
 
-// ⚡ 技4：ヒント
-function skillHint() {
-  if (skillsUsed.hint) return;
-  for (let i = 0; i < 15; i++) {
-    if (tiles[i] !== i + 1 && tiles.includes(i + 1)) {
-      const currentIndex = tiles.indexOf(i + 1);
-      [tiles[i], tiles[currentIndex]] = [tiles[currentIndex], tiles[i]];
-      skillsUsed.hint = true;
-      document.getElementById("skill-hint").disabled = true;
-      render();
-      message.textContent = `⚡ タイル${i + 1}が正しい位置に戻った！`;
-      checkWin();
-      checkTwoLines();
-      return;
-    }
-  }
-}
+/* ===== progress & checks ===== */
+function updateProgress(){ let correct=0; for(let i=0;i<8;i++){ if(gameState.tiles[i]===i+1) correct++; } const pct = Math.round((correct/8)*100); progressBar.style.width = pct+'%'; progressText.textContent = correct + '/8'; }
+function checkTwoLines(){ let ok=true; for(let i=0;i<8;i++){ if(gameState.tiles[i]!==i+1){ ok=false; break; } } if(ok){ for(const k in gameState.skillsUsed) gameState.skillsUsed[k]=false; updateSkillButtons(); showMsg('✨ 上2行が揃った！技をリチャージ'); playTone(1200,0.12); } }
+function checkWin(){ for(let i=0;i<15;i++) if(gameState.tiles[i]!==i+1) return; stopTimer(); showMsg('🎉 クリア！おめでとう！',3000); playTone(1600,0.35); }
 
-// 🎮 方向キー操作
-window.addEventListener("keydown", (e) => {
-  const emptyIndex = tiles.indexOf(null);
-  let targetIndex = null;
-  if (e.key === "ArrowUp" && emptyIndex + 4 < 16) targetIndex = emptyIndex + 4;
-  if (e.key === "ArrowDown" && emptyIndex - 4 >= 0) targetIndex = emptyIndex - 4;
-  if (e.key === "ArrowLeft" && emptyIndex % 4 < 3) targetIndex = emptyIndex + 1;
-  if (e.key === "ArrowRight" && emptyIndex % 4 > 0) targetIndex = emptyIndex - 1;
+/* ===== timer (time attack) ===== */
+function startTimer(){ if(gameState.timerRunning) return; gameState.startTime = performance.now() - gameState.elapsed; gameState.timerRunning = true; timerInterval = setInterval(()=>{ gameState.elapsed = performance.now() - gameState.startTime; timerEl.textContent = formatTime(gameState.elapsed); }, 40); }
+function stopTimer(){ if(timerInterval) clearInterval(timerInterval); gameState.timerRunning=false; }
+function resetTimer(){ stopTimer(); gameState.elapsed=0; timerEl.textContent = '00:00.00'; gameState.started=false; }
+function formatTime(ms){ const s = Math.floor(ms/1000); const mm = Math.floor(s/60); const ss = s%60; const cs = Math.floor((ms%1000)/10); return String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+String(cs).padStart(2,'0'); }
 
-  if (targetIndex !== null) {
-    [tiles[targetIndex], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[targetIndex]];
-    render();
-    checkWin();
-    checkTwoLines();
-  }
-});
+/* ===== controls ===== */
+document.getElementById('shuffleBtn').addEventListener('click', ()=>{ shuffleTiles(100); render(); showMsg('シャッフルしました'); playTone(260,0.06); resetTimer(); });
+document.getElementById('restartBtn').addEventListener('click', ()=>{ createPuzzle(); showMsg('ゲームを再スタート'); playTone(380,0.08); resetTimer(); });
 
+document.getElementById('soundToggle').addEventListener('click', ()=>{ gameState.audioEnabled = !gameState.audioEnabled; document.getElementById('soundToggle').textContent = gameState.audioEnabled? '🔊 ON' : '🔇 OFF'; showMsg('サウンド: ' + (gameState.audioEnabled? 'ON':'OFF')); });
+
+/* ===== responsive: re-render positions on resize ===== */
+window.addEventListener('resize', ()=>{ render(); });
+
+/* ===== init ===== */
 createPuzzle();
+
 </script>
 </body>
 </html>
