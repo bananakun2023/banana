@@ -1,187 +1,209 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>15パズル - Sliding Puzzle</title>
-  <meta name="description" content="シンプルな15パズル（スライディングパズル）。クリックか矢印キーでタイルを動かします。">
-  <style>
-    :root{--bg:#f3f6fb;--card:#fff;--text:#0f1724;--accent:#10b981;--muted:#6b7280}
-    [data-theme="dark"]{--bg:#071022;--card:#071823;--text:#e6eef8;--accent:#34d399;--muted:#9aa4bf}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-    .wrap{max-width:980px;margin:28px auto;padding:18px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-    h1{font-size:20px;margin:0}
-    .controls{display:flex;gap:8px;align-items:center}
-    button{padding:8px 10px;border-radius:8px;border:0;background:var(--accent);color:white;font-weight:600}
-    .sub{color:var(--muted);font-size:13px}
-
-    .game-area{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
-    .board{width:360px;height:360px;background:var(--card);border-radius:12px;padding:12px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:10px;box-shadow:0 10px 30px rgba(2,6,23,0.08)}
-    .tile{display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;border-radius:8px;background:linear-gradient(180deg,#fff, #f2f7fb);cursor:pointer;user-select:none}
-    [data-theme="dark"] .tile{background:linear-gradient(180deg,#071b2a,#05202b)}
-    .empty{background:transparent;cursor:default}
-
-    .stats{min-width:200px;padding:14px;border-radius:12px;background:var(--card);box-shadow:0 6px 18px rgba(2,6,23,0.04)}
-    .stats div{margin-bottom:8px}
-    .kbd{display:inline-block;padding:4px 8px;border-radius:6px;background:#eef2ff;font-weight:600}
-
-    .win{padding:12px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#60a5fa);color:white;text-align:center;font-weight:700}
-
-    @media(max-width:720px){.board{width:320px;height:320px}.wrap{padding:12px}}
-  </style>
+<meta charset="UTF-8">
+<title>スライドパズル＋技リセット</title>
+<style>
+  body { font-family: sans-serif; text-align: center; background: #f2f2f2; }
+  h1 { margin-top: 20px; }
+  #puzzle {
+    display: grid;
+    grid-template-columns: repeat(4, 80px);
+    grid-template-rows: repeat(4, 80px);
+    gap: 5px;
+    margin: 20px auto;
+    width: max-content;
+  }
+  .tile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #4cafef;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .empty {
+    background: #ddd;
+    cursor: default;
+  }
+  button { margin: 5px; padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer; background: #4cafef; color: white; font-size: 14px; }
+  button:disabled { background: #aaa; cursor: not-allowed; }
+</style>
 </head>
 <body>
-  <div class="wrap" id="app">
-    <header>
-      <div>
-        <h1>15パズル — スライディングパズル</h1>
-        <div class="sub">タイルをクリック、または矢印キーで空きマスに移動します。完成を目指そう！</div>
-      </div>
-      <div class="controls">
-        <div class="sub" id="status">状態: ー</div>
-        <button id="shuffle">シャッフル</button>
-        <button id="solve">並べ直す</button>
-        <button id="theme">ダーク/ライト</button>
-      </div>
-    </header>
+  <h1>15パズル＋技リセット</h1>
+  <div id="puzzle"></div>
 
-    <section class="game-area">
-      <div class="board" id="board" aria-label="15パズルボード" role="application"></div>
-
-      <aside class="stats" aria-live="polite">
-        <div>手数: <strong id="moves">0</strong></div>
-        <div>時間: <strong id="time">00:00</strong></div>
-        <div>空きマス: <strong id="emptyPos">-</strong></div>
-        <div>キー操作: <span class="kbd">← ↑ → ↓</span></div>
-        <div style="margin-top:12px"><button id="reset">リセット</button></div>
-        <div style="margin-top:12px" id="message"></div>
-      </aside>
-    </section>
-
+  <div>
+    <button onclick="shuffle()">通常シャッフル</button>
+    <button id="skill-shuffle" onclick="skillShuffle()">🌀 技：シャッフル</button>
+    <button id="skill-swap" onclick="skillSwap()">💨 技：スワップ</button>
+    <button id="skill-line" onclick="skillLine()">🔥 技：ライン回転</button>
+    <button id="skill-hint" onclick="skillHint()">⚡ 技：ヒント</button>
   </div>
+  <p id="message"></p>
 
-  <script>
-    // 4x4 sliding puzzle (15-puzzle)
-    const boardEl = document.getElementById('board');
-    const movesEl = document.getElementById('moves');
-    const timeEl = document.getElementById('time');
-    const emptyPosEl = document.getElementById('emptyPos');
-    const statusEl = document.getElementById('status');
-    const messageEl = document.getElementById('message');
+<script>
+const puzzle = document.getElementById("puzzle");
+const message = document.getElementById("message");
+let tiles = [];
+let selectedIndex = null;
 
-    let state = {tiles:[], emptyIndex:15, moves:0, startedAt:null, timer:null};
+const skillsUsed = {
+  shuffle: false,
+  swap: false,
+  line: false,
+  hint: false
+};
 
-    function initTiles(){
-      state.tiles = Array.from({length:15},(_,i)=>i+1).concat(null);
-      state.emptyIndex = 15; state.moves=0; state.startedAt=null; updateStats(); render();
+function createPuzzle() {
+  tiles = [];
+  for (let i = 1; i <= 15; i++) tiles.push(i);
+  tiles.push(null);
+  render();
+}
+
+function render() {
+  puzzle.innerHTML = "";
+  tiles.forEach((num, i) => {
+    const tile = document.createElement("div");
+    tile.classList.add("tile");
+    if (num === null) {
+      tile.classList.add("empty");
+    } else {
+      tile.textContent = num;
+      tile.addEventListener("click", () => moveTile(i));
     }
+    puzzle.appendChild(tile);
+  });
+}
 
-    function render(){
-      boardEl.innerHTML='';
-      state.tiles.forEach((v,idx)=>{
-        const el = document.createElement('div');
-        el.className = 'tile ' + (v===null? 'empty':'');
-        el.setAttribute('data-index',idx);
-        el.setAttribute('tabindex', v===null? -1:0);
-        if(v!==null){el.textContent = v}
-        boardEl.appendChild(el);
-      });
-      emptyPosEl.textContent = (state.emptyIndex+1);
-      movesEl.textContent = state.moves;
-      statusEl.textContent = isSolved() ? '完成！' : 'プレイ中';
-      if(isSolved()){showWin()}
+function moveTile(index) {
+  const emptyIndex = tiles.indexOf(null);
+  const canMove = [index - 1, index + 1, index - 4, index + 4].includes(emptyIndex) &&
+                  !(index % 4 === 0 && emptyIndex === index - 1) &&
+                  !(emptyIndex % 4 === 0 && index === emptyIndex - 1);
+  if (canMove) {
+    [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+    render();
+    checkWin();
+    checkTwoLines();
+  }
+}
+
+function shuffle() {
+  for (let i = tiles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+  }
+  render();
+  message.textContent = "";
+}
+
+function checkWin() {
+  for (let i = 0; i < 15; i++) if (tiles[i] !== i + 1) return;
+  message.textContent = "クリア！おめでとう！✨";
+}
+
+// ✅ 2行揃いチェック（上2行＝最初の8枚）
+function checkTwoLines() {
+  let correct = true;
+  for (let i = 0; i < 8; i++) {
+    if (tiles[i] !== i + 1) {
+      correct = false;
+      break;
     }
+  }
+  if (correct) {
+    resetSkills();
+    message.textContent = "✨ 上2行が揃った！技がリセットされた！";
+  }
+}
 
-    function swap(i,j){
-      [state.tiles[i], state.tiles[j]] = [state.tiles[j], state.tiles[i]];
-      state.emptyIndex = state.tiles.indexOf(null);
-      state.moves++;
-      if(!state.startedAt){startTimer()}
-      updateStats(); render();
+function resetSkills() {
+  for (const key in skillsUsed) {
+    skillsUsed[key] = false;
+  }
+  document.getElementById("skill-shuffle").disabled = false;
+  document.getElementById("skill-swap").disabled = false;
+  document.getElementById("skill-line").disabled = false;
+  document.getElementById("skill-hint").disabled = false;
+}
+
+// 🌀 技1：シャッフル
+function skillShuffle() {
+  if (skillsUsed.shuffle) return;
+  skillsUsed.shuffle = true;
+  document.getElementById("skill-shuffle").disabled = true;
+  shuffle();
+  message.textContent = "🌀 技発動！盤面が再シャッフルされた！";
+}
+
+// 💨 技2：スワップ
+function skillSwap() {
+  if (skillsUsed.swap) return;
+  message.textContent = "💨 スワップ技：2つのタイルをクリックして入れ替えて！";
+  const tilesDiv = document.querySelectorAll(".tile:not(.empty)");
+  tilesDiv.forEach((tile, i) => {
+    tile.addEventListener("click", selectTile);
+  });
+
+  function selectTile(e) {
+    const idx = Array.from(puzzle.children).indexOf(e.target);
+    if (selectedIndex === null) {
+      selectedIndex = idx;
+      e.target.style.background = "#ff9800";
+    } else {
+      [tiles[selectedIndex], tiles[idx]] = [tiles[idx], tiles[selectedIndex]];
+      selectedIndex = null;
+      skillsUsed.swap = true;
+      document.getElementById("skill-swap").disabled = true;
+      render();
+      message.textContent = "💨 スワップ完了！";
+      checkWin();
+      checkTwoLines();
     }
+  }
+}
 
-    function canMove(index){
-      const r1 = Math.floor(index/4), c1 = index%4;
-      const r2 = Math.floor(state.emptyIndex/4), c2 = state.emptyIndex%4;
-      return (Math.abs(r1-r2)+Math.abs(c1-c2))===1;
+// 🔥 技3：ライン回転
+function skillLine() {
+  if (skillsUsed.line) return;
+  const row = Math.floor(Math.random() * 4);
+  const start = row * 4;
+  const rowTiles = tiles.slice(start, start + 4);
+  rowTiles.unshift(rowTiles.pop());
+  for (let i = 0; i < 4; i++) tiles[start + i] = rowTiles[i];
+  skillsUsed.line = true;
+  document.getElementById("skill-line").disabled = true;
+  render();
+  message.textContent = `🔥 ${row + 1}行目が回転した！`;
+  checkTwoLines();
+}
+
+// ⚡ 技4：ヒント
+function skillHint() {
+  if (skillsUsed.hint) return;
+  for (let i = 0; i < 15; i++) {
+    if (tiles[i] !== i + 1 && tiles.includes(i + 1)) {
+      const currentIndex = tiles.indexOf(i + 1);
+      [tiles[i], tiles[currentIndex]] = [tiles[currentIndex], tiles[i]];
+      skillsUsed.hint = true;
+      document.getElementById("skill-hint").disabled = true;
+      render();
+      message.textContent = `⚡ タイル${i + 1}が正しい位置に戻った！`;
+      checkWin();
+      checkTwoLines();
+      return;
     }
+  }
+}
 
-    boardEl.addEventListener('click',e=>{
-      const t = e.target.closest('.tile'); if(!t) return;
-      const idx = Number(t.dataset.index);
-      if(state.tiles[idx]===null) return;
-      if(canMove(idx)) swap(idx, state.emptyIndex);
-    });
-
-    // keyboard controls: move empty with arrow keys by swapping with the adjacent tile
-    window.addEventListener('keydown',e=>{
-      const k = e.key;
-      const ei = state.emptyIndex;
-      let target = null;
-      if(k==='ArrowUp') target = ei+4;
-      if(k==='ArrowDown') target = ei-4;
-      if(k==='ArrowLeft' && ei%4!==3) target = ei+1; // empty moves left visually when swap
-      if(k==='ArrowRight' && ei%4!==0) target = ei-1;
-      if(target!==null && target>=0 && target<16){
-        e.preventDefault(); swap(target, ei);
-      }
-    });
-
-    // shuffle using Fisher-Yates but ensure solvable by making random legal moves
-    function shuffle(times=200){
-      let last = null;
-      for(let i=0;i<times;i++){
-        const neighbors = getNeighbors(state.emptyIndex).filter(n=>n!==last);
-        const pick = neighbors[Math.floor(Math.random()*neighbors.length)];
-        [state.tiles[state.emptyIndex], state.tiles[pick]] = [state.tiles[pick], state.tiles[state.emptyIndex]];
-        last = state.emptyIndex; state.emptyIndex = pick;
-      }
-      state.moves=0; resetTimer(); updateStats(); render();
-    }
-
-    function getNeighbors(index){
-      const r = Math.floor(index/4), c = index%4; const res = [];
-      if(r>0) res.push(index-4); if(r<3) res.push(index+4); if(c>0) res.push(index-1); if(c<3) res.push(index+1);
-      return res;
-    }
-
-    function isSolved(){
-      for(let i=0;i<15;i++){ if(state.tiles[i]!==i+1) return false }
-      return state.tiles[15]===null;
-    }
-
-    function startTimer(){
-      state.startedAt = Date.now(); if(state.timer) clearInterval(state.timer);
-      state.timer = setInterval(()=>{
-        const s = Math.floor((Date.now()-state.startedAt)/1000);
-        timeEl.textContent = formatTime(s);
-      },500);
-    }
-    function resetTimer(){ if(state.timer){clearInterval(state.timer); state.timer=null} state.startedAt=null; timeEl.textContent='00:00'}
-    function formatTime(s){ const m = Math.floor(s/60); const sec = s%60; return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}` }
-
-    function updateStats(){ movesEl.textContent = state.moves; emptyPosEl.textContent = state.emptyIndex+1; }
-
-    function showWin(){
-      if(state.timer){clearInterval(state.timer); state.timer=null}
-      messageEl.innerHTML = '<div class="win">おめでとう！完成しました — 手数: '+state.moves+' / 時間: '+timeEl.textContent+' </div>';
-    }
-
-    // buttons
-    document.getElementById('shuffle').addEventListener('click',()=>{shuffle(300); messageEl.innerHTML='';});
-    document.getElementById('solve').addEventListener('click',()=>{initTiles(); messageEl.innerHTML=''; resetTimer();});
-    document.getElementById('reset').addEventListener('click',()=>{initTiles(); messageEl.innerHTML=''; resetTimer();});
-
-    // theme toggle
-    const themeBtn = document.getElementById('theme'); let dark=false;
-    themeBtn.addEventListener('click',()=>{dark=!dark; if(dark) document.documentElement.setAttribute('data-theme','dark'); else document.documentElement.removeAttribute('data-theme');});
-
-    // initialize
-    initTiles();
-    // small auto-shuffle so it's not already solved
-    shuffle(80);
-  </script>
+createPuzzle();
+</script>
 </body>
 </html>
