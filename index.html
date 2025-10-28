@@ -1,327 +1,177 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>Ultimate FPS Game</title>
-<style>
-body{margin:0;overflow:hidden;background:#000;}
-canvas{display:block;}
-#score,#hp,#ammo,#weapon,#level{position:absolute;font-size:20px;color:white;}
-#score{top:10px;left:10px;}
-#hp{top:40px;left:10px;}
-#ammo{top:70px;left:10px;}
-#weapon{top:100px;left:10px;}
-#level{top:130px;left:10px;}
-#minimap{position:absolute;top:10px;right:10px;width:150px;height:150px;background:rgba(0,0,0,0.5);border:1px solid white;}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>4x4 スライディングパズル＋スキル</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#0b1220;
+      --accent:#ffb86b;
+      --tile:#1f2937;
+      --tile-face:#f8fafc;
+      --skill:#60a5fa;
+    }
+    html,body{height:100%;margin:0;font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;background:linear-gradient(180deg,#071023 0%, #07172a 60%);color:var(--tile-face);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .container{width:min(720px,95vw);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;box-shadow:0 10px 30px rgba(2,6,23,0.6);position:relative}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:12px}
+    h1{font-size:1.25rem;margin:0}
+    .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+    button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:var(--tile-face);cursor:pointer;transition:0.25s}
+    button:hover{background:rgba(255,255,255,0.08)}
+    button.primary{background:var(--accent);color:#101016;border:none}
+    .board-wrap{display:grid;grid-template-columns:1fr 260px;gap:16px}
+    @media (max-width:760px){.board-wrap{grid-template-columns:1fr}}
+    .board{width:100%;aspect-ratio:1/1;background:linear-gradient(180deg,#071428, #0b1b2a);border-radius:12px;padding:8px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:8px;box-sizing:border-box;position:relative}
+    .tile{display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.5rem;border-radius:8px;background:linear-gradient(180deg,#263244,#1a2a3a);box-shadow:inset 0 -6px 12px rgba(0,0,0,0.25);user-select:none;transition:transform .2s ease,opacity .2s ease;position:relative;z-index:1}
+    .tile.move{animation:slide .25s ease forwards}
+    .tile.empty{background:transparent;box-shadow:none;opacity:0}
+    @keyframes slide{0%{transform:scale(1.2)}50%{transform:scale(0.9)}100%{transform:scale(1)}}
+    .panel{background:linear-gradient(180deg,#07131b,#081623);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    .stats{display:flex;flex-direction:column;gap:8px}
+    .stat-row{display:flex;justify-content:space-between;align-items:center;font-size:0.95rem}
+    .hint{font-size:0.9rem;opacity:0.85}
+    footer{margin-top:12px;font-size:0.85rem;opacity:0.8;text-align:right}
+    .win-banner{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:linear-gradient(90deg,#00b894,#00d6a1);color:#012;padding:10px 18px;border-radius:999px;box-shadow:0 8px 30px rgba(0,0,0,0.4);display:none;z-index:999}
+    .skill-btn{background:var(--skill);color:#fff;font-weight:700;border:none;border-radius:6px;padding:6px 10px;margin-top:8px;cursor:pointer;width:100%;}
+  </style>
 </head>
 <body>
-<div id="score">Score: 0</div>
-<div id="hp">HP: 100</div>
-<div id="ammo">Ammo: 20</div>
-<div id="weapon">Weapon: Normal</div>
-<div id="level">Level: 1</div>
-<canvas id="minimap"></canvas>
-<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/PointerLockControls.js"></script>
-<script>
-// --- 基本変数 ---
-let scene,camera,renderer,controls;
-let bullets=[],enemies=[],walls=[],items=[];
-let score=0,hp=100,ammo=20,level=1;
-let shooting=false,lastShotTime=0;
-let fireRate=200,reloadTime=2000;
-let weapon='normal';
-const mazeSize=10, cellSize=2;
-const miniCanvas=document.getElementById('minimap');
-const miniCtx=miniCanvas.getContext('2d');
+  <div class="container">
+    <header>
+      <h1>4×4 スライディングパズル ✨</h1>
+      <div class="controls">
+        <button id="shuffleBtn">シャッフル</button>
+        <button id="solveBtn">並び替え</button>
+        <button id="hintBtn">ヒント</button>
+      </div>
+    </header>
 
-// --- 初期化 ---
-init();
-animate();
+    <div class="board-wrap">
+      <div class="board panel" id="board"></div>
+      <div class="panel">
+        <div class="stats">
+          <div class="stat-row"><span>移動数</span><strong id="moves">0</strong></div>
+          <div class="stat-row"><span>経過時間</span><strong id="timer">00:00</strong></div>
+          <div class="stat-row"><span>空きタイル位置</span><strong id="emptyPos">4,4</strong></div>
+        </div>
+        <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)" />
+        <div class="hint">矢印キーでも動かせます。</div>
+        <button class="skill-btn" id="swapSkill">🔄 スワップスキル（2タイル入替）</button>
+        <button class="skill-btn" id="revealSkill">💡 揃いスキル（1行自動揃え）</button>
+      </div>
+    </div>
+    <footer>完成すると自動で判定します。</footer>
+  </div>
 
-function init(){
-scene=new THREE.Scene();
-scene.background=new THREE.Color(0x87ceeb);
-camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
-camera.position.set(0,1.6,0);
-renderer=new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth,window.innerHeight);
-document.body.appendChild(renderer.domElement);
+  <div class="win-banner" id="winBanner">完成！おめでとう 🎉</div>
 
-// 地面
-const floor=new THREE.Mesh(
-new THREE.PlaneGeometry(100,100),
-new THREE.MeshPhongMaterial({color:0x228B22})
-);
-floor.rotation.x=-Math.PI/2;
-scene.add(floor);
+  <script>
+    const SIZE = 4;
+    const boardEl = document.getElementById('board');
+    const movesEl = document.getElementById('moves');
+    const timerEl = document.getElementById('timer');
+    const emptyPosEl = document.getElementById('emptyPos');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const solveBtn = document.getElementById('solveBtn');
+    const hintBtn = document.getElementById('hintBtn');
+    const winBanner = document.getElementById('winBanner');
+    const swapSkill = document.getElementById('swapSkill');
+    const revealSkill = document.getElementById('revealSkill');
 
-// 光源
-const light=new THREE.DirectionalLight(0xffffff,1);
-light.position.set(10,20,10);
-scene.add(light);
-scene.add(new THREE.AmbientLight(0x404040));
+    let tiles = [], moves = 0, timer = null, startTime = null;
+    let skillUsed = {swap:false, reveal:false};
 
-// FPSコントロール
-controls=new THREE.PointerLockControls(camera,document.body);
-document.body.addEventListener('click',()=>controls.lock());
+    function initSolved(){ tiles = []; for(let i=1;i<SIZE*SIZE;i++) tiles.push(i); tiles.push(0); }
 
-// キー操作
-const move={forward:false,backward:false,left:false,right:false};
-document.addEventListener('keydown',(e)=>{
-if(e.code==='KeyW') move.forward=true;
-if(e.code==='KeyS') move.backward=true;
-if(e.code==='KeyA') move.left=true;
-if(e.code==='KeyD') move.right=true;
-if(e.code==='KeyR') reload();
-if(e.code==='Digit1'){weapon='normal'; fireRate=200; ammo=20; document.getElementById('weapon').textContent='Weapon: Normal'; document.getElementById('ammo').textContent='Ammo: '+ammo;}
-if(e.code==='Digit2'){weapon='strong'; fireRate=500; ammo=5; document.getElementById('weapon').textContent='Weapon: Strong'; document.getElementById('ammo').textContent='Ammo: '+ammo;}
-});
-document.addEventListener('keyup',(e)=>{
-if(e.code==='KeyW') move.forward=false;
-if(e.code==='KeyS') move.backward=false;
-if(e.code==='KeyA') move.left=false;
-if(e.code==='KeyD') move.right=false;
-});
-document.addEventListener('mousedown',()=>shooting=true);
-document.addEventListener('mouseup',()=>shooting=false);
+    function render(){
+      boardEl.innerHTML = '';
+      for(let i=0;i<tiles.length;i++){
+        const val = tiles[i];
+        const tile = document.createElement('div');
+        tile.className = 'tile' + (val===0?' empty':'');
+        if(val!==0) tile.textContent = val;
+        tile.dataset.index = i;
+        tile.addEventListener('click', ()=> tryMove(i));
+        boardEl.appendChild(tile);
+      }
+      const emptyIdx = tiles.indexOf(0);
+      emptyPosEl.textContent = `${Math.floor(emptyIdx/SIZE)+1},${emptyIdx%SIZE+1}`;
+    }
 
-// 初期迷路と敵
-generateMaze(level);
-spawnEnemies(level);
-spawnItems(level);
+    function isAdjacent(a,b){
+      const ar=Math.floor(a/SIZE),ac=a%SIZE,br=Math.floor(b/SIZE),bc=b%SIZE;
+      return Math.abs(ar-br)+Math.abs(ac-bc)===1;
+    }
 
-// --- 移動 ---
-function updateControls(){
-const speed=0.1;
-if(move.forward) controls.moveForward(speed);
-if(move.backward) controls.moveForward(-speed);
-if(move.left) controls.moveRight(-speed);
-if(move.right) controls.moveRight(speed);
-}
+    function tryMove(index){
+      const empty=tiles.indexOf(0);
+      if(isAdjacent(index,empty)) move(index,empty);
+    }
 
-// --- 射撃 ---
-function shootBullet(){
-const now=Date.now();
-if(now-lastShotTime<fireRate||ammo<=0) return;
-lastShotTime=now;
-ammo--;
-document.getElementById('ammo').textContent='Ammo: '+ammo;
+    function move(from,to){
+      const tileEls=document.querySelectorAll('.tile');
+      const tile=tileEls[from];
+      tile.classList.add('move');
+      tiles[to]=tiles[from];
+      tiles[from]=0;
+      moves++;
+      movesEl.textContent=moves;
+      render();
+      checkWin();
+    }
 
-const bullet=new THREE.Mesh(
-new THREE.SphereGeometry(0.1,8,8),
-new THREE.MeshBasicMaterial({color:weapon==='normal'?0xff0000:0xffff00})
-);
-bullet.position.copy(camera.position);
-const dir=new THREE.Vector3();
-camera.getWorldDirection(dir);
-bullet.userData={velocity:dir.clone().multiplyScalar(weapon==='normal'?2:3), owner:'player'};
-scene.add(bullet);
-bullets.push(bullet);
+    function shuffle(){
+      do{ tiles.sort(()=>Math.random()-0.5);}while(!isSolvable(tiles)||isSolvedArray(tiles));
+      moves=0;movesEl.textContent=0;skillUsed={swap:false,reveal:false};startTimer();render();
+    }
 
-// 射撃音
-const audio=new Audio('https://www.soundjay.com/mechanical/sounds/pistol-01.mp3');
-audio.volume=0.2; audio.play();
-}
+    function checkWin(){
+      for(let i=0;i<tiles.length-1;i++) if(tiles[i]!==i+1) return;
+      if(tiles[tiles.length-1]!==0)return;
+      stopTimer();showWin();
+    }
 
-// --- リロード ---
-function reload(){
-setTimeout(()=>{ammo=weapon==='normal'?20:5; document.getElementById('ammo').textContent='Ammo: '+ammo;},reloadTime);
-}
+    function isSolvedArray(arr){ for(let i=0;i<arr.length-1;i++) if(arr[i]!==i+1) return false; return arr[arr.length-1]===0; }
+    function isSolvable(arr){ const list=arr.filter(x=>x!==0); let inv=0; for(let i=0;i<list.length;i++){for(let j=i+1;j<list.length;j++){if(list[i]>list[j])inv++;}} const emptyRow=SIZE-Math.floor(arr.indexOf(0)/SIZE); return ((inv+emptyRow)%2)===0; }
 
-// --- アニメーション ---
-function animate(){
-requestAnimationFrame(animate);
-updateControls();
+    function startTimer(){stopTimer();startTime=Date.now();timer=setInterval(()=>{const e=Math.floor((Date.now()-startTime)/1000);const mm=String(Math.floor(e/60)).padStart(2,'0');const ss=String(e%60).padStart(2,'0');timerEl.textContent=`${mm}:${ss}`;},250);}
+    function stopTimer(){if(timer){clearInterval(timer);timer=null;}}
 
-// 射撃
-if(shooting) shootBullet();
+    function showWin(){winBanner.style.display='block';setTimeout(()=>winBanner.style.display='none',4000);}
 
-// 弾処理
-bullets.forEach((b,index)=>{
-b.position.add(b.userData.velocity);
+    // スキル: 2タイルをランダムスワップ
+    swapSkill.addEventListener('click',()=>{
+      if(skillUsed.swap) return alert('このスキルは1回だけ使えます！');
+      let a,b; do{a=Math.floor(Math.random()*tiles.length);b=Math.floor(Math.random()*tiles.length);}while(a===b||tiles[a]===0||tiles[b]===0);
+      [tiles[a],tiles[b]]=[tiles[b],tiles[a]];
+      skillUsed.swap=true; render();
+    });
 
-// 壁衝突
-walls.forEach(w=>{
-if(new THREE.Box3().setFromObject(w).containsPoint(b.position)){
-scene.remove(b); bullets.splice(index,1);
-}
-});
+    // スキル: 1行を自動揃え
+    revealSkill.addEventListener('click',()=>{
+      if(skillUsed.reveal) return alert('このスキルは1回だけ使えます！');
+      const row=Math.floor(Math.random()*SIZE);
+      for(let i=0;i<SIZE;i++){tiles[row*SIZE+i]=(row*SIZE+i+1)% (SIZE*SIZE);}
+      skillUsed.reveal=true; render();
+    });
 
-// 敵衝突
-if(b.userData.owner==='player'){
-enemies.forEach((e,eIndex)=>{
-if(new THREE.Box3().setFromObject(e.mesh).containsPoint(b.position)){
-scene.remove(e.mesh);
-enemies.splice(eIndex,1);
-scene.remove(b); bullets.splice(index,1);
-score+=10; document.getElementById('score').textContent='Score: '+score;
-// ヒット音
-const hitAudio=new Audio('https://www.soundjay.com/button/sounds/button-16.mp3');
-hitAudio.volume=0.2; hitAudio.play();
-// パーティクル
-createParticles(e.mesh.position);
-spawnEnemyRandom();
-checkLevelUp();
-}
-});
-}
+    // キーボード操作
+    window.addEventListener('keydown',e=>{
+      const empty=tiles.indexOf(0);const r=Math.floor(empty/SIZE),c=empty%SIZE;let target=null;
+      if(e.key==='ArrowUp'&&r<SIZE-1)target=(r+1)*SIZE+c;
+      if(e.key==='ArrowDown'&&r>0)target=(r-1)*SIZE+c;
+      if(e.key==='ArrowLeft'&&c<SIZE-1)target=r*SIZE+(c+1);
+      if(e.key==='ArrowRight'&&c>0)target=r*SIZE+(c-1);
+      if(target!==null){tryMove(target);e.preventDefault();}
+    });
 
-// アイテム取得
-items.forEach((it,i)=>{
-if(camera.position.distanceTo(it.position)<1){
-scene.remove(it); items.splice(i,1);
-weapon='strong'; ammo=5; fireRate=500;
-document.getElementById('weapon').textContent='Weapon: Strong';
-document.getElementById('ammo').textContent='Ammo: '+ammo;
-// アイテム取得音
-const itemAudio=new Audio('https://www.soundjay.com/button/sounds/button-10.mp3');
-itemAudio.volume=0.3; itemAudio.play();
-}
-});
+    shuffleBtn.addEventListener('click',shuffle);
+    solveBtn.addEventListener('click',()=>{initSolved();render();stopTimer();});
+    hintBtn.addEventListener('click',()=>{const e=tiles.indexOf(0);const n=[e-1,e+1,e-SIZE,e+SIZE].filter(i=>i>=0&&i<tiles.length&&isAdjacent(i,e));const hint=n[Math.floor(Math.random()*n.length)];const tileEl=document.querySelector(`.tile[data-index='${hint}']`);if(tileEl){tileEl.style.transform='scale(1.15)';setTimeout(()=>tileEl.style.transform='',350);}});
 
-// 敵の弾
-if(b.userData.owner==='enemy'){
-if(camera.position.distanceTo(b.position)<0.5){
-hp-=5; if(hp<0) hp=0;
-document.getElementById('hp').textContent='HP: '+Math.floor(hp);
-scene.remove(b); bullets.splice(index,1);
-if(hp===0){gameOver();}
-}
-}
-
-if(b.position.length()>100){scene.remove(b); bullets.splice(index,1);}
-});
-
-// 敵AI
-enemies.forEach(e=>{
-if(e.type==='chase'){
-const dir=new THREE.Vector3();
-dir.subVectors(camera.position,e.mesh.position).setY(0).normalize();
-e.mesh.position.add(dir.multiplyScalar(e.speed));
-if(e.mesh.position.distanceTo(camera.position)<1){
-hp-=0.5; if(hp<0) hp=0;
-document.getElementById('hp').textContent='HP: '+Math.floor(hp);
-if(hp===0){gameOver();}
-}
-}
-if(e.type==='shoot'){
-if(!e.cooldown) e.cooldown=0;
-e.cooldown--;
-if(e.cooldown<=0 && e.mesh.position.distanceTo(camera.position)<10){
-const bullet=new THREE.Mesh(
-new THREE.SphereGeometry(0.1,8,8),
-new THREE.MeshBasicMaterial({color:0x00ffff})
-);
-bullet.position.copy(e.mesh.position);
-const dir=new THREE.Vector3();
-dir.subVectors(camera.position,e.mesh.position).normalize();
-bullet.userData={velocity:dir.multiplyScalar(1.5), owner:'enemy'};
-scene.add(bullet); bullets.push(bullet);
-e.cooldown=100;
-const audio=new Audio('https://www.soundjay.com/mechanical/sounds/pistol-01.mp3'); audio.volume=0.2; audio.play();
-}
-}
-});
-
-// ミニマップ
-drawMiniMap();
-
-renderer.render(scene,camera);
-}
-
-// --- パーティクル ---
-function createParticles(pos){
-for(let i=0;i<10;i++){
-const part=new THREE.Mesh(new THREE.SphereGeometry(0.05,4,4), new THREE.MeshBasicMaterial({color:0xffff00}));
-part.position.copy(pos);
-const vel=new THREE.Vector3((Math.random()-0.5)*0.5,Math.random()*0.5,(Math.random()-0.5)*0.5);
-part.userData={velocity:vel, life:30};
-scene.add(part);
-function update(){part.position.add(vel); part.userData.life--; if(part.userData.life<=0){scene.remove(part);}else{requestAnimationFrame(update);}}
-update();
-}
-}
-
-// --- 迷路生成 ---
-function generateMaze(level){
-walls.forEach(w=>scene.remove(w));
-walls=[];
-for(let i=0;i<mazeSize;i++){
-for(let j=0;j<mazeSize;j++){
-if(Math.random()<0.3+level*0.05){
-const wall=new THREE.Mesh(
-new THREE.BoxGeometry(cellSize,1,cellSize),
-new THREE.MeshPhongMaterial({color:0x8B4513})
-);
-wall.position.set(j*cellSize-5,0.5,i*cellSize-5);
-scene.add(wall); walls.push(wall);
-}
-}
-}
-}
-
-// --- 敵生成 ---
-function spawnEnemies(level){enemies=[]; for(let i=0;i<3+level;i++) spawnEnemyRandom();}
-function spawnEnemyRandom(){
-const type=Math.random()<0.7?'chase':'shoot';
-const mesh=new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshPhongMaterial({color:type==='chase'?0xff00ff:0x00ffff}));
-mesh.position.set(Math.random()*10-5,0.5,Math.random()*-10);
-scene.add(mesh);
-enemies.push({mesh:mesh,type:type,speed:type==='chase'?0.02:0,cooldown:0});
-}
-
-// --- アイテム生成 ---
-function spawnItems(level){
-items.forEach(it=>scene.remove(it)); items=[];
-for(let i=0;i<level;i++){
-const it=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.5,0.5), new THREE.MeshPhongMaterial({color:0x00ff00}));
-it.position.set(Math.random()*10-5,0.25,Math.random()*-10);
-scene.add(it); items.push(it);
-}
-}
-
-// --- ミニマップ ---
-function drawMiniMap(){
-miniCtx.clearRect(0,0,150,150);
-miniCtx.fillStyle='white';
-const px=(camera.position.x+10)/20*150;
-const pz=(camera.position.z+10)/20*150;
-miniCtx.fillRect(px,pz,5,5);
-enemies.forEach(e=>{
-miniCtx.fillStyle='red';
-const ex=(e.mesh.position.x+10)/20*150;
-const ez=(e.mesh.position.z+10)/20*150;
-miniCtx.fillRect(ex,ez,5,5);
-});
-items.forEach(it=>{
-miniCtx.fillStyle='lime';
-const ix=(it.position.x+10)/20*150;
-const iz=(it.position.z+10)/20*150;
-miniCtx.fillRect(ix,iz,5,5);
-});
-}
-
-// --- レベルアップ判定 ---
-function checkLevelUp(){
-if(score>=level*50){
-level++; document.getElementById('level').textContent='Level: '+level;
-generateMaze(level); spawnEnemies(level); spawnItems(level);
-const audio=new Audio('https://www.soundjay.com/button/sounds/button-3.mp3'); audio.volume=0.3; audio.play();
-}
-}
-
-// --- ゲームオーバー ---
-function gameOver(){
-alert('Game Over!'); score=0; hp=100; level=1; document.getElementById('score').textContent='Score: '+score; document.getElementById('hp').textContent='HP: '+hp; document.getElementById('level').textContent='Level: '+level; generateMaze(level); spawnEnemies(level); spawnItems(level);
-}
-
-window.addEventListener('resize',()=>{
-camera.aspect=window.innerWidth/window.innerHeight;
-camera.updateProjectionMatrix();
-renderer.setSize(window.innerWidth,window.innerHeight);
-});
-</script>
+    initSolved();render();shuffle();
+  </script>
 </body>
 </html>
