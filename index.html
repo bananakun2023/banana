@@ -1,428 +1,205 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>4x4 スライディングパズル — スキル満載（派手）</title>
-  <style>
-    :root{
-      --bg:#071226;
-      --panel:#07131b;
-      --accent:#ffb86b;
-      --skill1:#60a5fa; /* swap */
-      --skill2:#a78bfa; /* reveal */
-      --skill3:#f97316; /* align */
-      --skill4:#ef4444; /* explosion */
-      --glass: rgba(255,255,255,0.04);
-    }
-    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;background:linear-gradient(180deg,#041024 0%, #071226 100%);color:#e6eef8;display:flex;align-items:center;justify-content:center}
-    .container{width:min(980px,96vw);border-radius:14px;padding:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 20px 60px rgba(2,6,23,0.7);position:relative;overflow:hidden}
-    header{display:flex;align-items:center;gap:12px}
-    h1{margin:0;font-size:1.2rem}
-    .controls{margin-left:auto;display:flex;gap:8px}
-    button{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:8px 10px;border-radius:8px;color:inherit;cursor:pointer;backdrop-filter: blur(4px)}
-    .board-wrap{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:12px}
-    @media (max-width:980px){.board-wrap{grid-template-columns:1fr 300px}}
-    @media (max-width:760px){.board-wrap{grid-template-columns:1fr}}
-    .board{width:100%;aspect-ratio:1/1;background:linear-gradient(180deg,#071428, #081b2a);border-radius:12px;padding:10px;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:10px;box-sizing:border-box;position:relative}
-    .tile{display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.5rem;border-radius:10px;background:linear-gradient(180deg,#2b3a50,#14202a);box-shadow:0 8px 20px rgba(2,6,23,0.6), inset 0 -6px 12px rgba(0,0,0,0.25);user-select:none;transition:transform .18s cubic-bezier(.2,.9,.3,1), box-shadow .18s;position:relative}
-    .tile.empty{background:transparent;box-shadow:none;opacity:0}
-
-    /* flashy effect classes */
-    .flash{animation:flashAnim .6s ease forwards}
-    @keyframes flashAnim{0%{filter:brightness(1.6) saturate(1.3)}50%{filter:brightness(2) saturate(1.6)}100%{filter:brightness(1)}}
-
-    /* ripple overlay canvas sits above board */
-    #ripple{position:absolute;left:10px;top:10px;width:calc(100% - 20px);height:calc(100% - 20px);pointer-events:none;border-radius:12px;}
-
-    .panel{background:linear-gradient(180deg,#06121a,#07121b);padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
-    .stat{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .skill-list{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
-    .skill{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border:1px solid rgba(255,255,255,0.02)}
-    .skill .meta{flex:1}
-    .gauge{height:10px;border-radius:8px;background:rgba(255,255,255,0.06);overflow:hidden}
-    .gauge > i{display:block;height:100%;width:0%;background:linear-gradient(90deg, rgba(255,255,255,0.15), rgba(255,255,255,0.35));transition:width .25s ease}
-    .skill-btn{padding:6px 10px;border-radius:8px;border:none;cursor:pointer;color:#031024;font-weight:700}
-
-    /* skill colors */
-    .s1 .skill-btn{background:var(--skill1)}
-    .s2 .skill-btn{background:var(--skill2)}
-    .s3 .skill-btn{background:var(--skill3)}
-    .s4 .skill-btn{background:var(--skill4)}
-
-    /* explosion shake */
-    .shake{animation:shake .6s ease-in-out}
-    @keyframes shake{0%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(6px)}100%{transform:translateX(0)}}
-
-    /* small HUD */
-    .hint{opacity:0.9;font-size:0.95rem;margin-top:8px}
-    .footer{margin-top:12px;text-align:right;opacity:0.8}
-
-    /* bottom mini overlay for tips */\    
-    .overlay-tip{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;background:linear-gradient(90deg,#ffffff10,#ffffff06);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.04);backdrop-filter: blur(6px);}
-
-  </style>
+<meta charset="UTF-8">
+<title>太鼓の達人 IRIS OUT 完全版</title>
+<style>
+body {
+  margin: 0;
+  background: linear-gradient(to bottom, #fceabb, #f8b500);
+  overflow: hidden;
+  font-family: 'Arial Rounded MT Bold', sans-serif;
+  user-select: none;
+}
+#gameContainer {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+#ytplayer {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 320px;
+  height: 180px;
+  border: 3px solid #222;
+  border-radius: 10px;
+}
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+#ui {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 250px;
+  background: rgba(255,255,255,0.5);
+  border-left: 3px solid #000;
+  border-radius: 10px 0 0 10px;
+  padding: 10px;
+}
+button {
+  margin: 5px;
+  padding: 8px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #ff5f00;
+  color: white;
+  cursor: pointer;
+}
+button:hover { background: #ff8533; }
+h1 {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  color: #fff;
+  text-shadow: 2px 2px 4px #000;
+}
+</style>
 </head>
 <body>
-  <div class="container" id="root">
-    <header>
-      <h1>4×4 スライディングパズル — スキル大炸裂 🎮</h1>
-      <div class="controls">
-        <button id="shuffleBtn">シャッフル</button>
-        <button id="solveBtn">並び替え</button>
-        <button id="hintBtn">ヒント</button>
-      </div>
-    </header>
+<div id="gameContainer">
+  <!-- YouTubeプレイヤー -->
+  <iframe id="ytplayer" src="https://www.youtube.com/embed/LmZD-TU96q4?enablejsapi=1&mute=1"
+    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
-    <div class="board-wrap">
-      <div class="panel" style="position:relative;">
-        <div id="board" class="board" aria-label="パズル盤"></div>
-        <canvas id="ripple"></canvas>
-      </div>
-
-      <div class="panel">
-        <div class="stat"><div>移動数</div><strong id="moves">0</strong></div>
-        <div class="stat"><div>経過時間</div><strong id="timer">00:00</strong></div>
-        <div class="stat"><div>空き</div><strong id="emptyPos">4,4</strong></div>
-
-        <div class="skill-list">
-          <div class="skill s1">
-            <div class="meta">
-              <div style="font-weight:800">🔄 スワップ</div>
-              <div style="font-size:0.85rem;color:#bcd">任意の2タイルを交換（選択式）</div>
-              <div class="gauge" style="margin-top:8px"><i id="g1"></i></div>
-            </div>
-            <button class="skill-btn" id="btn1">発動 (1)</button>
-          </div>
-
-          <div class="skill s2">
-            <div class="meta">
-              <div style="font-weight:800">💡 揃い</div>
-              <div style="font-size:0.85rem;color:#bcd">1行を自動で正しい並びに</div>
-              <div class="gauge" style="margin-top:8px"><i id="g2"></i></div>
-            </div>
-            <button class="skill-btn" id="btn2">発動 (2)</button>
-          </div>
-
-          <div class="skill s3">
-            <div class="meta">
-              <div style="font-weight:800">⚡ 整列</div>
-              <div style="font-size:0.85rem;color:#bcd">盤を1手分正解に近づける</div>
-              <div class="gauge" style="margin-top:8px"><i id="g3"></i></div>
-            </div>
-            <button class="skill-btn" id="btn3">発動 (3)</button>
-          </div>
-
-          <div class="skill s4">
-            <div class="meta">
-              <div style="font-weight:800">💥 爆発</div>
-              <div style="font-size:0.85rem;color:#bcd">周囲をランダムシャッフル（ボーナスあり）</div>
-              <div class="gauge" style="margin-top:8px"><i id="g4"></i></div>
-            </div>
-            <button class="skill-btn" id="btn4">発動 (4)</button>
-          </div>
-        </div>
-
-        <div class="hint">ショートカット: 1〜4キーでそれぞれ発動。スキルはゲージが満タンのとき使用可能。</div>
-      </div>
-    </div>
-
-    <div class="overlay-tip">派手な演出モード — 音あり/キーあり</div>
+  <canvas id="gameCanvas"></canvas>
+  <div id="ui">
+    <button onclick="startGame()">🎵 ゲーム開始</button>
+    <button onclick="toggleAuto()">🤖 オート</button>
+    <button onclick="toggle2P()">👥 2P</button>
+    <button onclick="toggleEditor()">🛠 譜面エディタ</button>
+    <button onclick="unmute()">🔊 音ON</button>
+    <p id="status">状態: 待機中</p>
+    <p id="score">スコア: 0</p>
+    <p id="combo">コンボ: 0</p>
   </div>
+</div>
 
-  <script>
-    /* ------------------ 基本盤面ロジック ------------------ */
-    const SIZE = 4;
-    const N = SIZE*SIZE;
-    const boardEl = document.getElementById('board');
-    const movesEl = document.getElementById('moves');
-    const timerEl = document.getElementById('timer');
-    const emptyPosEl = document.getElementById('emptyPos');
-    const shuffleBtn = document.getElementById('shuffleBtn');
-    const solveBtn = document.getElementById('solveBtn');
-    const hintBtn = document.getElementById('hintBtn');
-    const root = document.getElementById('root');
+<script>
+let canvas = document.getElementById('gameCanvas');
+let ctx = canvas.getContext('2d');
+let w = window.innerWidth, h = window.innerHeight;
+canvas.width = w; canvas.height = h;
 
-    let tiles = [];
-    let moves = 0, timer = null, startTime = null;
+let notes = []; // 譜面データ
+let startTime = 0;
+let gameActive = false;
+let score = 0, combo = 0;
+let autoPlay = false;
+let is2P = false;
+let editorMode = false;
 
-    function initSolved(){ tiles = []; for(let i=1;i<N;i++) tiles.push(i); tiles.push(0); }
-    function isAdjacent(a,b){ const ar=Math.floor(a/SIZE), ac=a%SIZE, br=Math.floor(b/SIZE), bc=b%SIZE; return Math.abs(ar-br)+Math.abs(ac-bc)===1; }
+// ノーツ（例: タイム[s], タイプ:'don'|'ka'）
+let baseChart = [
+  {time:1.0,type:'don'},
+  {time:1.5,type:'ka'},
+  {time:2.0,type:'don'},
+  {time:2.5,type:'don'},
+  {time:3.0,type:'ka'},
+  {time:3.5,type:'don'},
+  {time:4.0,type:'ka'},
+  {time:4.5,type:'don'}
+];
+notes = baseChart;
 
-    function render(){ boardEl.innerHTML=''; for(let i=0;i<tiles.length;i++){ const val=tiles[i]; const div=document.createElement('div'); div.className='tile'+(val===0? ' empty':''); div.dataset.index=i; if(val!==0) div.textContent=val; div.addEventListener('click', ()=>tryMove(i)); boardEl.appendChild(div);} updateEmptyPos(); }
+function draw() {
+  ctx.clearRect(0,0,w,h);
+  // 背景
+  ctx.fillStyle = '#fef4c5';
+  ctx.fillRect(0,0,w,h);
+  // ノーツ
+  let current = (Date.now()-startTime)/1000;
+  for (let n of notes) {
+    let x = w - (n.time - current) * 400; // スクロール速度
+    let y = h/2;
+    if (n.type==='don') ctx.fillStyle='red';
+    else ctx.fillStyle='blue';
+    ctx.beginPath();
+    ctx.arc(x, y, 40, 0, Math.PI*2);
+    ctx.fill();
+  }
+  // 太鼓
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.arc(150, h/2, 60, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#f00';
+  ctx.beginPath();
+  ctx.arc(150, h/2, 40, 0, Math.PI*2);
+  ctx.fill();
 
-    function tryMove(i){ const e=tiles.indexOf(0); if(isAdjacent(i,e)) move(i,e); }
+  requestAnimationFrame(draw);
+}
+draw();
 
-    function move(from,to,opts={animate:true}){
-      // swap
-      [tiles[from], tiles[to]] = [tiles[to], tiles[from]];
-      moves++; movesEl.textContent=moves;
-      chargeOnMove();
-      if(opts.animate) playSound('move');
-      render();
-      checkWin();
-      pulseTile(to);
-    }
+function hit(type){
+  if(!gameActive) return;
+  let t = (Date.now()-startTime)/1000;
+  let nearest = notes.find(n=>Math.abs(n.time-t)<0.2);
+  if(nearest && nearest.type===type){
+    score+=100; combo++;
+    document.getElementById('status').textContent='Perfect!';
+    notes.splice(notes.indexOf(nearest),1);
+  }else{
+    combo=0;
+    document.getElementById('status').textContent='Miss!';
+  }
+  document.getElementById('score').textContent='スコア: '+score;
+  document.getElementById('combo').textContent='コンボ: '+combo;
+}
 
-    function pulseTile(idx){ const el = boardEl.querySelector(`.tile[data-index='${idx}']`); if(!el) return; el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'), 600); }
+window.addEventListener('keydown',e=>{
+  if(e.code==='Space') hit('don');
+  if(e.code==='Enter') hit('ka');
+  if(is2P){
+    if(e.code==='KeyW') hit('don');
+    if(e.code==='KeyE') hit('ka');
+  }
+});
 
-    function updateEmptyPos(){ const e=tiles.indexOf(0); emptyPosEl.textContent = `${Math.floor(e/SIZE)+1},${e%SIZE+1}`; }
+function startGame(){
+  gameActive=true;
+  score=0; combo=0;
+  startTime=Date.now();
+  document.getElementById('status').textContent='スタート！';
+}
 
-    function isSolved(){ for(let i=0;i<N-1;i++) if(tiles[i] !== i+1) return false; return tiles[N-1]===0; }
-
-    function checkWin(){ if(isSolved()){ stopTimer(); playSound('win'); showWin(); }}
-
-    function showWin(){ const el=document.createElement('div'); el.textContent='完成！おめでとう 🎉'; el.style.position='fixed'; el.style.left='50%'; el.style.top='18px'; el.style.transform='translateX(-50%)'; el.style.background='linear-gradient(90deg,#00b894,#00d6a1)'; el.style.color='#012'; el.style.padding='10px 16px'; el.style.borderRadius='999px'; el.style.zIndex=9999; document.body.appendChild(el); setTimeout(()=>el.remove(),4000); }
-
-    /* ------------------ シャッフルと可解性 ------------------ */
-    function isSolvable(arr){ const list = arr.filter(x=>x!==0); let inv=0; for(let i=0;i<list.length;i++){ for(let j=i+1;j<list.length;j++){ if(list[i]>list[j]) inv++; }} const emptyRowFromBottom = SIZE - Math.floor(arr.indexOf(0)/SIZE); return ((inv + emptyRowFromBottom) % 2) === 0; }
-    function shuffle(){ do{ tiles = [...Array(N).keys()].map(i=>i).sort(()=>Math.random()-0.5); tiles = tiles.map(i => i===N-1 ? 0 : i+1); }while(!isSolvable(tiles) || isSolved()); moves=0; movesEl.textContent=0; startTimer(); playSound('shuffle'); render(); }
-
-    function resetSolved(){ initSolved(); render(); stopTimer(); moves=0; movesEl.textContent=0; }
-
-    shuffleBtn.addEventListener('click', shuffle);
-    solveBtn.addEventListener('click', resetSolved);
-    hintBtn.addEventListener('click', ()=>{ simpleHint(); playSound('hint'); });
-
-    /* ------------------ タイマー ------------------ */
-    function startTimer(){ stopTimer(); startTime=Date.now(); timerEl.textContent='00:00'; timer=setInterval(()=>{ const sec=Math.floor((Date.now()-startTime)/1000); const mm=String(Math.floor(sec/60)).padStart(2,'0'); const ss=String(sec%60).padStart(2,'0'); timerEl.textContent=`${mm}:${ss}`; }, 250); }
-    function stopTimer(){ if(timer){ clearInterval(timer); timer=null; }}
-
-    /* ------------------ ヒント ------------------ */
-    function simpleHint(){ const e=tiles.indexOf(0); const neighbors=[e-1,e+1,e-SIZE,e+SIZE].filter(i=>i>=0&&i<tiles.length&&isAdjacent(i,e)); if(neighbors.length===0) return; const h=neighbors[Math.floor(Math.random()*neighbors.length)]; const el=boardEl.querySelector(`.tile[data-index='${h}']`); if(el){ el.style.transform='scale(1.2)'; setTimeout(()=>el.style.transform='',300);} }
-
-    /* ------------------ スキルシステム ------------------ */
-    const SKILLS = {
-      swap: {id:1, charge:0, rate:0.2},
-      reveal: {id:2, charge:0, rate:0.18},
-      align: {id:3, charge:0, rate:0.15},
-      explode: {id:4, charge:0, rate:0.12}
+function toggleAuto(){
+  autoPlay=!autoPlay;
+  document.getElementById('status').textContent='オート:'+autoPlay;
+}
+function toggle2P(){
+  is2P=!is2P;
+  document.getElementById('status').textContent='2P:'+is2P;
+}
+function toggleEditor(){
+  editorMode=!editorMode;
+  if(editorMode){
+    document.getElementById('status').textContent='エディタモード:クリックでノーツ追加';
+    canvas.onclick=(e)=>{
+      let t=(e.clientX/w)*10;
+      let type=(Math.random()>0.5)?'don':'ka';
+      notes.push({time:t,type:type});
     };
-    const G_MAX = 1.0;
-    const gEls = {g1:document.getElementById('g1'), g2:document.getElementById('g2'), g3:document.getElementById('g3'), g4:document.getElementById('g4')};
-    const btns = {b1:document.getElementById('btn1'), b2:document.getElementById('btn2'), b3:document.getElementById('btn3'), b4:document.getElementById('btn4')};
-
-    // charge increment: time-based
-    let chargeInterval = setInterval(()=>{
-      for(const k in SKILLS){ SKILLS[k].charge = Math.min(G_MAX, SKILLS[k].charge + SKILLS[k].rate * 0.02); }
-      updateGauges();
-    }, 200);
-
-    function chargeOnMove(){ // per move small charge
-      SKILLS.swap.charge = Math.min(G_MAX, SKILLS.swap.charge + 0.02);
-      SKILLS.reveal.charge = Math.min(G_MAX, SKILLS.reveal.charge + 0.015);
-      SKILLS.align.charge = Math.min(G_MAX, SKILLS.align.charge + 0.012);
-      SKILLS.explode.charge = Math.min(G_MAX, SKILLS.explode.charge + 0.01);
-      updateGauges();
-    }
-
-    function chargeOnLineComplete(){ // big bonus when a row or column is correct
-      for(const k in SKILLS){ SKILLS[k].charge = Math.min(G_MAX, SKILLS[k].charge + 0.18); }
-      spawnRippleBoard();
-      playSound('bonus');
-      updateGauges();
-    }
-
-    function updateGauges(){ gEls.g1.style.width = `${SKILLS.swap.charge*100}%`; gEls.g2.style.width = `${SKILLS.reveal.charge*100}%`; gEls.g3.style.width = `${SKILLS.align.charge*100}%`; gEls.g4.style.width = `${SKILLS.explode.charge*100}%`; }
-
-    // helper: check row/col completion when rendering
-    function checkRowColBonuses(){
-      let got=false;
-      // rows
-      for(let r=0;r<SIZE;r++){
-        let ok=true;
-        for(let c=0;c<SIZE;c++){ const idx=r*SIZE+c; if(idx===N-1) { if(tiles[idx]!==0) ok=false; } else { if(tiles[idx] !== idx+1) ok=false; }}
-        if(ok){ got=true; }
-      }
-      // cols
-      for(let c=0;c<SIZE;c++){
-        let ok=true;
-        for(let r=0;r<SIZE;r++){ const idx=r*SIZE+c; if(idx===N-1){ if(tiles[idx]!==0) ok=false; } else { if(tiles[idx] !== idx+1) ok=false; }}
-        if(ok) got=true;
-      }
-      if(got) chargeOnLineComplete();
-    }
-
-    // ---------- skill implementations ----------
-    // 1) スワップ: 任意の2タイルを選んで交換
-    let swapSelecting = false; let swapFirst = null;
-    btns.b1.addEventListener('click', ()=>activateSkill('swap'));
-    // 2) 揃い: ランダム行を正しくする
-    btns.b2.addEventListener('click', ()=>activateSkill('reveal'));
-    // 3) 整列: 盤を1手分正解へ近づける（簡易: 一番外れのタイルを正しい位置へ移動）
-    btns.b3.addEventListener('click', ()=>activateSkill('align'));
-    // 4) 爆発: 周囲をランダムシャッフル
-    btns.b4.addEventListener('click', ()=>activateSkill('explode'));
-
-    function activateSkill(name){ if(SKILLS[name].charge < 0.999) { playSound('denied'); shakeRoot(); return; } SKILLS[name].charge = 0; updateGauges(); playSound('skill'); spawnRippleBoard(); switch(name){
-        case 'swap': beginSwapMode(); break;
-        case 'reveal': doRevealRow(); break;
-        case 'align': doAlignStep(); break;
-        case 'explode': doExplode(); break;
-      }
-    }
-
-    function beginSwapMode(){ swapSelecting=true; swapFirst=null; root.querySelector('.overlay-tip').textContent='2つのタイルをクリックして選択して入替（Escでキャンセル）'; playSound('select'); const handler = (e)=>{ const t = e.target.closest('.tile'); if(!t) return; const idx = Number(t.dataset.index); if(tiles[idx]===0) return; if(swapFirst===null){ swapFirst=idx; t.style.outline='3px solid rgba(255,255,255,0.12)'; } else { // do swap
-        const firstEl = boardEl.querySelector(`.tile[data-index='${swapFirst}']`);
-        if(firstEl) firstEl.style.outline=''; [tiles[swapFirst], tiles[idx]] = [tiles[idx], tiles[swapFirst]]; render(); playSound('swap'); swapSelecting=false; root.querySelector('.overlay-tip').textContent='派手な演出モード — 音あり/キーあり'; document.removeEventListener('click', handler, true); checkRowColBonuses(); }}; document.addEventListener('click', handler, true);
-    }
-
-    function doRevealRow(){ // pick a random row and put it to solved state
-      const row = Math.floor(Math.random()*SIZE);
-      for(let c=0;c<SIZE;c++){ const idx=row*SIZE+c; tiles[idx] = (idx===N-1)?0:idx+1; }
-      render(); playSound('reveal'); spawnRainbow(row); checkRowColBonuses(); }
-
-    function doAlignStep(){ // find the most misplaced tile and move it closer: naive approach
-      let worstIdx = null; let worstScore = -Infinity;
-      for(let i=0;i<N;i++){ const val = tiles[i]; if(val===0) continue; const correctIdx = val-1; const dist = Math.abs(Math.floor(i/SIZE)-Math.floor(correctIdx/SIZE)) + Math.abs(i%SIZE - correctIdx%SIZE); if(dist > worstScore){ worstScore = dist; worstIdx = i; }}
-      if(worstIdx!==null){ // try to move it towards correct position by swapping with an adjacent tile that reduces distance
-        const targets = [worstIdx-1,worstIdx+1,worstIdx-SIZE,worstIdx+SIZE].filter(i=>i>=0&&i<N&&isAdjacent(i,worstIdx));
-        let best = null; let bestDist = worstScore;
-        const val = tiles[worstIdx]; const correctIdx = val-1;
-        for(const t of targets){ const d = Math.abs(Math.floor(t/SIZE)-Math.floor(correctIdx/SIZE)) + Math.abs(t%SIZE - correctIdx%SIZE); if(d < bestDist){ bestDist=d; best=t; }}
-        if(best!==null){ [tiles[best], tiles[worstIdx]] = [tiles[worstIdx], tiles[best]]; render(); playSound('align'); spawnLightning(worstIdx); checkRowColBonuses(); }
-      }
-    }
-
-    function doExplode(){ // pick a random center (non-empty) and shuffle its neighbors
-      const centers = [...Array(N).keys()].filter(i=>tiles[i]!==0);
-      const center = centers[Math.floor(Math.random()*centers.length)];
-      const neighbors = [center-1,center+1,center-SIZE,center+SIZE].filter(i=>i>=0&&i<N&&isAdjacent(i,center));
-      // shuffle neighbor values
-      const vals = neighbors.map(i=>tiles[i]);
-      for(let i=vals.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [vals[i], vals[j]]=[vals[j], vals[i]]; }
-      neighbors.forEach((idx,i)=> tiles[idx]=vals[i]); render(); playSound('boom'); applyShake(); spawnExplosion(center); checkRowColBonuses(); }
-
-    // keyboard shortcuts 1-4
-    window.addEventListener('keydown', (e)=>{
-      if(e.key>='1' && e.key<='4'){ const map = {'1':'swap','2':'reveal','3':'align','4':'explode'}; activateSkill(map[e.key]); }
-      if(e.key==='Escape' && swapSelecting){ swapSelecting=false; swapFirst=null; root.querySelector('.overlay-tip').textContent='派手な演出モード — 音あり/キーあり'; }
-      // arrow keys
-      const empty = tiles.indexOf(0); const r=Math.floor(empty/SIZE), c=empty%SIZE; let target=null;
-      if(e.key==='ArrowUp' && r<SIZE-1) target=(r+1)*SIZE+c;
-      if(e.key==='ArrowDown' && r>0) target=(r-1)*SIZE+c;
-      if(e.key==='ArrowLeft' && c<SIZE-1) target=r*SIZE+(c+1);
-      if(e.key==='ArrowRight' && c>0) target=r*SIZE+(c-1);
-      if(target!==null){ move(target, empty); e.preventDefault(); }
-    });
-
-    /* ------------------ ビジュアルエフェクト: ripple, rainbow, lightning, explosion ------------------ */
-    const canvas = document.getElementById('ripple');
-    const ctx = canvas.getContext('2d');
-    function resizeCanvas(){ canvas.width = canvas.clientWidth * devicePixelRatio; canvas.height = canvas.clientHeight * devicePixelRatio; }
-    window.addEventListener('resize', resizeCanvas); setTimeout(resizeCanvas, 50);
-
-    let effects = [];
-    function spawnRippleBoard(){ // whole-board rainbow ripple
-      effects.push({type:'ripple', t:0, x:canvas.width/2, y:canvas.height/2, ttl:120});
-    }
-    function spawnRainbow(row){ // highlight a row with rainbow sweep
-      const h = canvas.height; const w = canvas.width; const tileH = h / SIZE;
-      const y = (row + 0.5) * tileH;
-      effects.push({type:'row', t:0, y, ttl:90});
-    }
-    function spawnLightning(idx){ // lightning from top to tile
-      const el = boardEl.querySelector(`.tile[data-index='${idx}']`);
-      if(!el) return; const rect = el.getBoundingClientRect(); const br = boardEl.getBoundingClientRect(); const x = (rect.left - br.left + rect.width/2) * devicePixelRatio; const y = (rect.top - br.top + rect.height/2) * devicePixelRatio; effects.push({type:'light', t:0, x,y, ttl:40}); }
-    function spawnExplosion(idx){ const el = boardEl.querySelector(`.tile[data-index='${idx}']`); if(!el) return; const rect = el.getBoundingClientRect(); const br = boardEl.getBoundingClientRect(); const x = (rect.left - br.left + rect.width/2) * devicePixelRatio; const y = (rect.top - br.top + rect.height/2) * devicePixelRatio; effects.push({type:'boom', t:0, x,y, ttl:100}); }
-
-    function drawEffects(){ ctx.clearRect(0,0,canvas.width,canvas.height); for(let i=effects.length-1;i>=0;i--){ const e=effects[i]; e.t++; if(e.t>e.ttl){ effects.splice(i,1); continue; }
-      const p = e.t / e.ttl;
-      if(e.type==='ripple'){
-        const maxR = Math.max(canvas.width, canvas.height) * 0.9;
-        const r = p * maxR;
-        const grad = ctx.createRadialGradient(e.x, e.y, r*0.1, e.x, e.y, r);
-        grad.addColorStop(0, `rgba(255,255,255,${0.25 * (1-p)})`);
-        grad.addColorStop(0.4, `hsla(${p*360},100%,60%,${0.18 * (1-p)})`);
-        grad.addColorStop(1, `rgba(0,0,0,0)`);
-        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(e.x, e.y, r, 0, Math.PI*2); ctx.fill();
-      } else if(e.type==='row'){
-        const tileH = canvas.height / SIZE; const wave = Math.sin(p * Math.PI) * 0.8; const grad = ctx.createLinearGradient(0, e.y - tileH*0.6, canvas.width, e.y + tileH*0.6);
-        grad.addColorStop(0, `hsla(${p*360},100%,60%,${0.65*wave})`);
-        grad.addColorStop(0.5, `hsla(${(p*360+120)%360},100%,60%,${0.9*wave})`);
-        grad.addColorStop(1, `hsla(${(p*360+240)%360},100%,60%,${0.65*wave})`);
-        ctx.fillStyle = grad; ctx.fillRect(0, e.y - tileH*0.6, canvas.width, tileH*1.2);
-      } else if(e.type==='light'){
-        const alpha = (1 - p) * 0.95; ctx.strokeStyle = `rgba(255,255,255,${alpha})`; ctx.lineWidth = 2 * (1-p) * devicePixelRatio;
-        ctx.beginPath(); ctx.moveTo(e.x, 0); ctx.lineTo(e.x + (Math.sin(e.t*0.5)*40), e.y); ctx.stroke();
-      } else if(e.type==='boom'){
-        const r = p * 180; const grd = ctx.createRadialGradient(e.x, e.y, r*0.1, e.x, e.y, r);
-        grd.addColorStop(0, `rgba(255,255,255,${0.9*(1-p)})`);
-        grd.addColorStop(0.5, `hsla(${p*60},100%,60%,${0.6*(1-p)})`);
-        grd.addColorStop(1, `rgba(0,0,0,0)`);
-        ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(e.x, e.y, r,0,Math.PI*2); ctx.fill();
-      }
-    }}
-    function loopEffects(){ drawEffects(); requestAnimationFrame(loopEffects); }
-    loopEffects();
-
-    /* ------------------ screen shake ------------------ */
-    function applyShake(){ root.classList.add('shake'); setTimeout(()=> root.classList.remove('shake'), 600); }
-    function shakeRoot(){ root.classList.add('shake'); setTimeout(()=> root.classList.remove('shake'), 350); }
-
-    /* ------------------ audio (WebAudio synth effects) ------------------ */
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    const audioCtx = new AudioCtx();
-    function playBeep(freq, type='sine', duration=0.18, gain=0.12){ const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type = type; o.frequency.value = freq; g.gain.value = gain; o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + duration); }
-    function playBurst(){ for(let i=0;i<4;i++){ setTimeout(()=>playBeep(200 + i*80, 'sawtooth', 0.12, 0.08), i*60); } }
-
-    function playSound(name){ try{ switch(name){
-        case 'move': playBeep(600,'sine',0.08,0.04); break;
-        case 'swap': playBurst(); break;
-        case 'reveal': playBeep(920,'triangle',0.26,0.12); setTimeout(()=>playBeep(620,'sine',0.18,0.06), 80); break;
-        case 'align': playBeep(760,'sawtooth',0.14,0.12); break;
-        case 'boom': playBeep(130,'sine',0.34,0.18); setTimeout(()=>playBeep(280,'sine',0.18,0.1), 80); break;
-        case 'skill': playBeep(820,'sine',0.09,0.08); break;
-        case 'hint': playBeep(980,'triangle',0.08,0.06); break;
-        case 'shuffle': playBeep(360,'triangle',0.18,0.08); break;
-        case 'win': playBeep(1200,'sine',0.4,0.14); setTimeout(()=>playBeep(1500,'sine',0.28,0.1),180); break;
-        case 'bonus': playBeep(880,'sine',0.22,0.12); playBeep(660,'sine',0.12,0.08); break;
-        case 'denied': playBeep(160,'sine',0.09,0.08); break;
-        case 'select': playBeep(720,'sine',0.07,0.06); break;
-        default: break;
-      }}catch(e){ /* audio context resume policy */ audioCtx.resume(); }
-    }
-
-    /* ------------------ visual helper: rainbow around a row (called by reveal) ------------------ */
-    function spawnRippleBoard(){ effects.push({type:'ripple', t:0, x:canvas.width/2, y:canvas.height/2, ttl:120}); }
-
-    /* ------------------ init and helpers ------------------ */
-    function applyInitial(){ initSolved(); render(); shuffle(); }
-    applyInitial();
-
-    // ensure gauges render initially
-    updateGauges();
-
-    // redraw canvas when tiles render
-    const ro = new ResizeObserver(()=>{ resizeCanvas(); }); ro.observe(boardEl);
-
-    // small utilities invoked on certain actions
-    function spawnLightning(i){ spawnLightning(i); }
-
-    // expose some functions for internal effects
-    function spawnRainbow(row){ effects.push({type:'row', t:0, y:(row+0.5)*(canvas.height/SIZE), ttl:90}); }
-
-    // re-define certain functions after hoisting confusion
-    function spawnLightning(idx){ const el = boardEl.querySelector(`.tile[data-index='${idx}']`); if(!el) return; const rect = el.getBoundingClientRect(); const br = boardEl.getBoundingClientRect(); const x = (rect.left - br.left + rect.width/2) * devicePixelRatio; const y = (rect.top - br.top + rect.height/2) * devicePixelRatio; effects.push({type:'light', t:0, x,y, ttl:40}); }
-
-    // small periodic check: detect completed rows/cols (to grant bonuses only once per completion)
-    let lastCompleted = new Set();
-    setInterval(()=>{
-      const completed = new Set();
-      for(let r=0;r<SIZE;r++){
-        let ok=true; for(let c=0;c<SIZE;c++){ const idx=r*SIZE+c; if(idx===N-1){ if(tiles[idx]!==0) ok=false; } else { if(tiles[idx] !== idx+1) ok=false; }} if(ok) completed.add(`r${r}`);
-      }
-      for(let c=0;c<SIZE;c++){
-        let ok=true; for(let r=0;r<SIZE;r++){ const idx=r*SIZE+c; if(idx===N-1){ if(tiles[idx]!==0) ok=false; } else { if(tiles[idx] !== idx+1) ok=false; }} if(ok) completed.add(`c${c}`);
-      }
-      // newly completed
-      for(const id of completed){ if(!lastCompleted.has(id)){ // new
-          lastCompleted.add(id); chargeOnLineComplete(); }
-      }
-      // remove ones that are no longer completed
-      for(const id of Array.from(lastCompleted)){ if(!completed.has(id)) lastCompleted.delete(id); }
-    }, 700);
-
-  </script>
+  }else{
+    canvas.onclick=null;
+    document.getElementById('status').textContent='通常モード';
+  }
+}
+function unmute(){
+  let iframe=document.getElementById('ytplayer');
+  iframe.src="https://www.youtube.com/embed/LmZD-TU96q4?enablejsapi=1&autoplay=1&mute=0";
+  document.getElementById('status').textContent='音声ON';
+}
+</script>
 </body>
 </html>
