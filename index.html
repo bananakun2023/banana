@@ -2,203 +2,144 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>太鼓の達人 IRIS OUT 完全版</title>
+<title>3D風マイクラ罰ゲームルーレット</title>
 <style>
-body {
-  margin: 0;
-  background: linear-gradient(to bottom, #fceabb, #f8b500);
-  overflow: hidden;
-  font-family: 'Arial Rounded MT Bold', sans-serif;
-  user-select: none;
-}
-#gameContainer {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-#ytplayer {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 320px;
-  height: 180px;
-  border: 3px solid #222;
-  border-radius: 10px;
-}
-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-#ui {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 250px;
-  background: rgba(255,255,255,0.5);
-  border-left: 3px solid #000;
-  border-radius: 10px 0 0 10px;
-  padding: 10px;
-}
-button {
-  margin: 5px;
-  padding: 8px 14px;
-  font-size: 14px;
-  border: none;
-  border-radius: 8px;
-  background: #ff5f00;
-  color: white;
-  cursor: pointer;
-}
-button:hover { background: #ff8533; }
-h1 {
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 48px;
-  color: #fff;
-  text-shadow: 2px 2px 4px #000;
-}
+  body {
+    font-family: 'Arial', sans-serif;
+    background: #0b0c10;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow: hidden;
+    perspective: 1000px;
+  }
+  h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #fff;
+  }
+  #roulette-container {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    transform-style: preserve-3d;
+  }
+  .roulette-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform-origin: 0 0 150px;
+    font-size: 1.5em;
+    white-space: nowrap;
+    text-align: center;
+    transform: rotateY(0deg) translateZ(150px);
+  }
+  button {
+    margin-top: 20px;
+    padding: 15px 40px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #61dafb;
+    color: #000;
+  }
+  button:hover { background: #21a1f1; }
+
+  .firework {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: fly 1s forwards;
+  }
+  @keyframes fly {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--x), var(--y)) scale(2); opacity: 0; }
+  }
 </style>
 </head>
 <body>
-<div id="gameContainer">
-  <!-- YouTubeプレイヤー -->
-  <iframe id="ytplayer" src="https://www.youtube.com/embed/LmZD-TU96q4?enablejsapi=1&mute=1"
-    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-
-  <canvas id="gameCanvas"></canvas>
-  <div id="ui">
-    <button onclick="startGame()">🎵 ゲーム開始</button>
-    <button onclick="toggleAuto()">🤖 オート</button>
-    <button onclick="toggle2P()">👥 2P</button>
-    <button onclick="toggleEditor()">🛠 譜面エディタ</button>
-    <button onclick="unmute()">🔊 音ON</button>
-    <p id="status">状態: 待機中</p>
-    <p id="score">スコア: 0</p>
-    <p id="combo">コンボ: 0</p>
-  </div>
-</div>
+<h1>3D風マイクラ罰ゲームルーレット🎆</h1>
+<div id="roulette-container"></div>
+<button onclick="spinRoulette()">ルーレットを回す</button>
+<audio id="tickSound" src="https://freesound.org/data/previews/341/341695_3248244-lq.mp3"></audio>
 
 <script>
-let canvas = document.getElementById('gameCanvas');
-let ctx = canvas.getContext('2d');
-let w = window.innerWidth, h = window.innerHeight;
-canvas.width = w; canvas.height = h;
-
-let notes = []; // 譜面データ
-let startTime = 0;
-let gameActive = false;
-let score = 0, combo = 0;
-let autoPlay = false;
-let is2P = false;
-let editorMode = false;
-
-// ノーツ（例: タイム[s], タイプ:'don'|'ka'）
-let baseChart = [
-  {time:1.0,type:'don'},
-  {time:1.5,type:'ka'},
-  {time:2.0,type:'don'},
-  {time:2.5,type:'don'},
-  {time:3.0,type:'ka'},
-  {time:3.5,type:'don'},
-  {time:4.0,type:'ka'},
-  {time:4.5,type:'don'}
+const punishments = [
+  "溶岩に飛び込む🔥",
+  "ダイヤを全部捨てる💎",
+  "木の剣でウィザーと戦え🌲",
+  "村人にプレゼントを渡して挨拶🎁",
+  "1分間逆立ち(しゃがみ)で移動🦶",
+  "鶏10匹に囲まれて過ごせ🐔",
+  "ネザーポータルに飛び込め🔥",
+  "ベッドを全部燃やせ🔥",
+  "食料を全部投げ捨てろ🍖",
+  "敵モブ10体倒すまで帰れない👾",
+  "モブに見つからず10秒隠れろ👀",
+  "全身鉄装備で村を一周🛡️",
+  "スケルトンに矢10本当てられる🎯",
+  "水バケツで自分をジャンプ💦",
+  "手持ちのアイテムをランダムで地面に投げろ🎲"
 ];
-notes = baseChart;
 
-function draw() {
-  ctx.clearRect(0,0,w,h);
-  // 背景
-  ctx.fillStyle = '#fef4c5';
-  ctx.fillRect(0,0,w,h);
-  // ノーツ
-  let current = (Date.now()-startTime)/1000;
-  for (let n of notes) {
-    let x = w - (n.time - current) * 400; // スクロール速度
-    let y = h/2;
-    if (n.type==='don') ctx.fillStyle='red';
-    else ctx.fillStyle='blue';
-    ctx.beginPath();
-    ctx.arc(x, y, 40, 0, Math.PI*2);
-    ctx.fill();
-  }
-  // 太鼓
-  ctx.fillStyle = '#000';
-  ctx.beginPath();
-  ctx.arc(150, h/2, 60, 0, Math.PI*2);
-  ctx.fill();
-  ctx.fillStyle = '#f00';
-  ctx.beginPath();
-  ctx.arc(150, h/2, 40, 0, Math.PI*2);
-  ctx.fill();
+const container = document.getElementById("roulette-container");
+const tick = document.getElementById("tickSound");
 
-  requestAnimationFrame(draw);
-}
-draw();
-
-function hit(type){
-  if(!gameActive) return;
-  let t = (Date.now()-startTime)/1000;
-  let nearest = notes.find(n=>Math.abs(n.time-t)<0.2);
-  if(nearest && nearest.type===type){
-    score+=100; combo++;
-    document.getElementById('status').textContent='Perfect!';
-    notes.splice(notes.indexOf(nearest),1);
-  }else{
-    combo=0;
-    document.getElementById('status').textContent='Miss!';
-  }
-  document.getElementById('score').textContent='スコア: '+score;
-  document.getElementById('combo').textContent='コンボ: '+combo;
-}
-
-window.addEventListener('keydown',e=>{
-  if(e.code==='Space') hit('don');
-  if(e.code==='Enter') hit('ka');
-  if(is2P){
-    if(e.code==='KeyW') hit('don');
-    if(e.code==='KeyE') hit('ka');
-  }
+// 文字を円形に配置
+punishments.forEach((text, i) => {
+  const div = document.createElement("div");
+  div.className = "roulette-item";
+  div.textContent = text;
+  div.style.transform = `rotateY(${(360/punishments.length)*i}deg) translateZ(150px)`;
+  container.appendChild(div);
 });
 
-function startGame(){
-  gameActive=true;
-  score=0; combo=0;
-  startTime=Date.now();
-  document.getElementById('status').textContent='スタート！';
-}
+let rotation = 0;
 
-function toggleAuto(){
-  autoPlay=!autoPlay;
-  document.getElementById('status').textContent='オート:'+autoPlay;
-}
-function toggle2P(){
-  is2P=!is2P;
-  document.getElementById('status').textContent='2P:'+is2P;
-}
-function toggleEditor(){
-  editorMode=!editorMode;
-  if(editorMode){
-    document.getElementById('status').textContent='エディタモード:クリックでノーツ追加';
-    canvas.onclick=(e)=>{
-      let t=(e.clientX/w)*10;
-      let type=(Math.random()>0.5)?'don':'ka';
-      notes.push({time:t,type:type});
-    };
-  }else{
-    canvas.onclick=null;
-    document.getElementById('status').textContent='通常モード';
+function createFirework(x, y) {
+  for(let i=0;i<30;i++){
+    const fw = document.createElement('div');
+    fw.className = 'firework';
+    fw.style.left = x + 'px';
+    fw.style.top = y + 'px';
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = Math.random() * 150;
+    fw.style.setProperty('--x', Math.cos(angle) * distance + 'px');
+    fw.style.setProperty('--y', Math.sin(angle) * distance + 'px');
+    fw.style.background = `hsl(${Math.random()*360},100%,50%)`;
+    document.body.appendChild(fw);
+    setTimeout(() => fw.remove(), 1000);
   }
 }
-function unmute(){
-  let iframe=document.getElementById('ytplayer');
-  iframe.src="https://www.youtube.com/embed/LmZD-TU96q4?enablejsapi=1&autoplay=1&mute=0";
-  document.getElementById('status').textContent='音声ON';
+
+function spinRoulette() {
+  let spins = Math.floor(Math.random() * 10 + 30);
+  let delay = 50;
+  let count = 0;
+
+  const interval = setInterval(() => {
+    rotation += 15 + Math.random() * 10;
+    container.style.transform = `rotateY(${rotation}deg)`;
+
+    tick.currentTime = 0;
+    tick.play().catch(()=>{});
+
+    count++;
+    delay += 5;
+
+    if(count >= spins){
+      clearInterval(interval);
+      // 花火
+      const rect = container.getBoundingClientRect();
+      createFirework(rect.left + rect.width/2, rect.top + rect.height/2);
+    }
+  }, delay);
 }
 </script>
 </body>
