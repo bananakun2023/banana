@@ -36,6 +36,18 @@
     white-space: nowrap;
     text-align: center;
     transform: rotateY(0deg) translateZ(150px);
+    transition: transform 0.1s ease;
+  }
+  #result {
+    margin-top: 30px;
+    font-size: 2em;
+    padding: 20px 40px;
+    background: linear-gradient(135deg, #21a1f1, #61dafb);
+    border-radius: 20px;
+    text-align: center;
+    min-width: 350px;
+    box-shadow: 0 0 20px #61dafb;
+    display: none;
   }
   button {
     margin-top: 20px;
@@ -66,6 +78,7 @@
 <body>
 <h1>3D風マイクラ罰ゲームルーレット🎆</h1>
 <div id="roulette-container"></div>
+<div id="result"></div>
 <button onclick="spinRoulette()">ルーレットを回す</button>
 <audio id="tickSound" src="https://freesound.org/data/previews/341/341695_3248244-lq.mp3"></audio>
 
@@ -74,21 +87,24 @@ const punishments = [
   "溶岩に飛び込む🔥",
   "ダイヤを全部捨てる💎",
   "木の剣でウィザーと戦え🌲",
-  "村人にプレゼントを渡して挨拶🎁",
-  "1分間逆立ち(しゃがみ)で移動🦶",
-  "鶏10匹に囲まれて過ごせ🐔",
+  "村を見つけるまで何もしてはいけない",
+  "筋トレ１分",
+  "肉を全部集めろ",
   "ネザーポータルに飛び込め🔥",
-  "ベッドを全部燃やせ🔥",
+  "装備を全部すてろ",
   "食料を全部投げ捨てろ🍖",
   "敵モブ10体倒すまで帰れない👾",
-  "モブに見つからず10秒隠れろ👀",
-  "全身鉄装備で村を一周🛡️",
-  "スケルトンに矢10本当てられる🎯",
-  "水バケツで自分をジャンプ💦",
-  "手持ちのアイテムをランダムで地面に投げろ🎲"
+  "ピンクの羊毛を作れ",
+  "ダイヤ装備何か１つ（ツールはなし）",
+  "リンゴ１０個集める",
+  "家を建てる",
+  "弓矢を作る",
+  "家の周りを走る（物理）",
+  "１ｋｍ走る"
 ];
 
 const container = document.getElementById("roulette-container");
+const resultDiv = document.getElementById("result");
 const tick = document.getElementById("tickSound");
 
 // 文字を円形に配置
@@ -122,6 +138,7 @@ function spinRoulette() {
   let spins = Math.floor(Math.random() * 10 + 30);
   let delay = 50;
   let count = 0;
+  resultDiv.style.display = "none";
 
   const interval = setInterval(() => {
     rotation += 15 + Math.random() * 10;
@@ -135,8 +152,17 @@ function spinRoulette() {
 
     if(count >= spins){
       clearInterval(interval);
-      // 花火
-      const rect = container.getBoundingClientRect();
+
+      // 停止位置の計算
+      const index = Math.floor((rotation % 360) / (360 / punishments.length));
+      const finalIndex = (punishments.length - index) % punishments.length;
+
+      // 結果を大きく表示
+      resultDiv.textContent = punishments[finalIndex];
+      resultDiv.style.display = "block";
+
+      // 花火演出
+      const rect = resultDiv.getBoundingClientRect();
       createFirework(rect.left + rect.width/2, rect.top + rect.height/2);
     }
   }, delay);
